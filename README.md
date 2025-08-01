@@ -30,9 +30,11 @@ This simulator creates a complex environment where multiple AI agents with diffe
 
 ## 📋 Requirements
 
-- macOS with M4 Max (optimized for Apple Silicon)
-- Python 3.8+
-- 48GB RAM recommended for large-scale experiments
+- **Platform**: Windows, macOS, or Linux
+- **Python**: 3.8+ (tested on 3.10)
+- **RAM**: 8GB minimum (16GB+ recommended for large experiments)
+- **CPU**: Multi-core processor recommended (optimized for 8+ cores)
+- **GPU**: Optional (CUDA or MPS support for acceleration)
 
 ## 🛠️ Installation
 

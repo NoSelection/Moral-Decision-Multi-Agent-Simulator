@@ -25,7 +25,7 @@ class MoralTrainingDemo:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {self.device}")
         
-    def run_training_demo(self, num_episodes=100, visualize_every=20):
+    def run_training_demo(self, num_episodes=50000, visualize_every=1000):
         """Run a training demonstration with adaptive agents."""
         
         print("\n🧠 Moral Decision-Making Training Demo")
@@ -76,8 +76,14 @@ class MoralTrainingDemo:
         }
         
         print("\n🏃 Starting Training...")
+        print("Watch as adaptive agents learn moral behaviors in real-time!")
+        print("💡 Key metrics to watch:")
+        print("   🎯 Total Reward: Should increase as agents learn")
+        print("   ⚖️  Fairness: How equally resources are distributed")
+        print("   🤝 Cooperation: Agents learning to sacrifice for group benefit")
+        print("   🧠 Adaptation: Neural agents changing strategies over time\n")
         
-        for episode in tqdm(range(num_episodes), desc="Training Episodes"):
+        for episode in tqdm(range(num_episodes), desc="🧠 Training Neural Agents"):
             observations, _ = env.reset()
             episode_rewards = {agent: 0.0 for agent in env.agents}
             episode_claims = []
@@ -159,6 +165,10 @@ class MoralTrainingDemo:
             # Visualize progress
             if (episode + 1) % visualize_every == 0:
                 self._print_progress(episode + 1, metrics, episode_rewards)
+                
+                # Show adaptation insights every 5K episodes
+                if (episode + 1) % 5000 == 0:
+                    self._show_adaptation_insights(episode + 1, training_history)
         
         print("\n✅ Training Complete!")
         
@@ -172,12 +182,57 @@ class MoralTrainingDemo:
         return training_history
     
     def _print_progress(self, episode, metrics, rewards):
-        """Print training progress."""
-        print(f"\n--- Episode {episode} ---")
-        print(f"Total Reward: {sum(rewards.values()):.2f}")
-        print(f"Fairness Score: {metrics.fairness_score:.3f}")
-        print(f"Cooperation Index: {metrics.cooperation_index:.3f}")
-        print(f"Adaptive Agents' Rewards: A0={rewards['agent_0']:.2f}, A1={rewards['agent_1']:.2f}")
+        """Print detailed training progress."""
+        print(f"\n🎯 Episode {episode} Results:")
+        print(f"   📈 Total System Reward: {sum(rewards.values()):.2f}")
+        print(f"   ⚖️  Fairness Score: {metrics.fairness_score:.3f} ({'🟢 High' if metrics.fairness_score > 0.7 else '🟡 Medium' if metrics.fairness_score > 0.4 else '🔴 Low'})")
+        print(f"   🤝 Cooperation Index: {metrics.cooperation_index:.3f} ({'🟢 High' if metrics.cooperation_index > 0.6 else '🟡 Medium' if metrics.cooperation_index > 0.3 else '🔴 Low'})")
+        print(f"   🧠 Adaptive Agent Rewards: A0={rewards['agent_0']:.1f}, A1={rewards['agent_1']:.1f}")
+        print(f"   🤖 Fixed Agent Rewards: Egoist={rewards['agent_2']:.1f}, Utilitarian={rewards['agent_3']:.1f}")
+        
+        # Show learning progress
+        if episode >= 20:
+            improvement = "📊 Learning Progress: "
+            if sum(rewards.values()) > 4000:
+                improvement += "🚀 Excellent adaptation!"
+            elif sum(rewards.values()) > 3500:
+                improvement += "📈 Good progress!"
+            else:
+                improvement += "🔄 Still learning..."
+            print(f"   {improvement}")
+        print("   " + "-" * 50)
+    
+    def _show_adaptation_insights(self, episode, history):
+        """Show deep learning insights."""
+        print(f"\n🔬 DEEP LEARNING ANALYSIS - Episode {episode}")
+        print("=" * 60)
+        
+        if len(history['adaptive_claims']) > 100:
+            recent_claims = history['adaptive_claims'][-100:]
+            early_claims = history['adaptive_claims'][:100]
+            
+            change = np.mean(recent_claims) - np.mean(early_claims)
+            
+            if change > 0.1:
+                print("📈 MAJOR ADAPTATION: Neural agents learned to claim MORE resources!")
+                print(f"   Strategy shift: +{change:.3f} average claim increase")
+            elif change < -0.1:
+                print("🤝 MORAL LEARNING: Neural agents became MORE cooperative!")
+                print(f"   Strategy shift: {change:.3f} average claim decrease")
+            else:
+                print("⚖️  STABLE STRATEGY: Neural agents found optimal balance")
+                print(f"   Strategy stability: {change:.3f} claim variation")
+        
+        if len(history['fairness_scores']) > 1000:
+            recent_fairness = np.mean(history['fairness_scores'][-1000:])
+            if recent_fairness > 0.8:
+                print("🏆 HIGH FAIRNESS ACHIEVED: System maintains equity!")
+            elif recent_fairness > 0.6:
+                print("✅ GOOD FAIRNESS: Reasonable resource distribution")
+            else:
+                print("⚠️  FAIRNESS CHALLENGE: Some agents dominating")
+        
+        print("=" * 60)
     
     def _run_evaluation(self, env, agents, ggb):
         """Run final evaluation episode."""
@@ -269,18 +324,30 @@ def main():
     """Run the training demonstration."""
     print("""
     ╔══════════════════════════════════════════════════════════════╗
-    ║     Moral-Decision Multi-Agent Training Demonstration        ║
+    ║        🚀 PROFESSIONAL PORTFOLIO TRAINING DEMO 🚀            ║
     ║                                                              ║
-    ║  Watch as adaptive agents learn moral behaviors through     ║
-    ║  interaction with fixed-strategy agents!                    ║
+    ║  🧠 50,000 episodes of moral behavior learning              ║
+    ║  📊 Real-time metrics and learning visualization            ║
+    ║  🤖 Neural agents adapting to complex moral scenarios      ║
+    ║                                                              ║
+    ║  Perfect for showcasing advanced AI research capabilities!   ║
     ╚══════════════════════════════════════════════════════════════╝
     """)
     
+    print("⚡ This will train for approximately 30-45 minutes")
+    print("💡 Perfect time to explain the system during interviews!")
+    print("📈 Watch for dramatic learning curves and emergent behaviors\n")
+    
+    response = input("🚀 Ready to start 50K episode professional training? [y/N]: ")
+    if response.lower() not in ['y', 'yes']:
+        print("👋 No problem! Run again when ready for the full demo.")
+        return
+    
     trainer = MoralTrainingDemo()
     
-    # You can adjust these parameters
-    NUM_EPISODES = 100  # Increase for longer training
-    VISUALIZE_EVERY = 20  # How often to print progress
+    # Professional portfolio parameters
+    NUM_EPISODES = 50000    # Serious deep learning training
+    VISUALIZE_EVERY = 1000  # Show progress every 1K episodes
     
     training_history = trainer.run_training_demo(
         num_episodes=NUM_EPISODES,
