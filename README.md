@@ -1,18 +1,18 @@
 # Moral-Decision Multi-Agent Simulator
 
-A groundbreaking multi-agent reinforcement learning environment for studying moral decision-making and emergent social dynamics. Inspired by the MAEBE (Multi-Agent Ethically-Aligned Behavior Evaluation) research framework.
+A multi-agent reinforcement learning environment for studying moral decision-making and emergent social dynamics. Inspired by the MAEBE (Multi-Agent Ethically-Aligned Behavior Evaluation) research framework, this system enables researchers to study how different moral frameworks interact in multi-agent settings and how group dynamics influence individual decision-making.
 
-## 🌟 Overview
+## Overview
 
-This simulator creates a complex environment where multiple AI agents with different moral frameworks must make decisions about resource allocation. The system studies:
+This simulator creates an environment where multiple AI agents with different moral frameworks must make decisions about resource allocation. The system enables study of:
 
-- **Emergent moral behaviors** in multi-agent systems
-- **Peer pressure and conformity** effects on decision-making
-- **Utilitarian vs deontological** reasoning trade-offs
-- **Social dynamics** and group welfare optimization
-- **Supervisor agents** that can steer group behavior
+- Emergent moral behaviors in multi-agent systems
+- Peer pressure and conformity effects on decision-making
+- Utilitarian vs deontological reasoning trade-offs
+- Social dynamics and group welfare optimization
+- Supervisor agents that can influence group behavior
 
-## 🚀 Key Features
+## Key Features
 
 ### Moral Frameworks Implemented
 - **Utilitarian Agent**: Maximizes total welfare/utility
@@ -23,20 +23,20 @@ This simulator creates a complex environment where multiple AI agents with diffe
 - **Supervisor Agent**: Attempts to steer group dynamics
 
 ### Advanced Capabilities
-- **MADDPG Training**: Multi-Agent Deep Deterministic Policy Gradient
-- **Greatest Good Benchmark (GGB)**: Comprehensive moral metrics
-- **Peer Influence Analysis**: Tracks conformity and social pressure
-- **Interactive Visualizations**: Real-time dashboards and analysis
+- **MADDPG Training**: Multi-Agent Deep Deterministic Policy Gradient implementation
+- **Greatest Good Benchmark (GGB)**: Comprehensive moral metrics calculation
+- **Peer Influence Analysis**: Tracks conformity and social pressure effects
+- **Comprehensive Visualizations**: Training curves and behavioral analysis
 
-## 📋 Requirements
+## Requirements
 
 - **Platform**: Windows, macOS, or Linux
 - **Python**: 3.8+ (tested on 3.10)
-- **RAM**: 8GB minimum (16GB+ recommended for large experiments)
+- **RAM**: 8GB minimum (32GB+ recommended for large-scale experiments)
 - **CPU**: Multi-core processor recommended (optimized for 8+ cores)
 - **GPU**: Optional (CUDA or MPS support for acceleration)
 
-## 🛠️ Installation
+## Installation
 
 ```bash
 # Clone the repository
@@ -50,7 +50,7 @@ source venv/bin/activate  # On macOS/Linux
 pip install -r requirements.txt
 ```
 
-## 🎮 Quick Start
+## Quick Start
 
 ### Run All Experiments
 ```bash
@@ -69,7 +69,7 @@ python main.py --experiment supervisor --num_agents 6
 python main.py --experiment custom --reward_structure utilitarian
 ```
 
-## 🧪 Experiments
+## Experiments
 
 ### 1. Peer Pressure Experiments
 Studies how social influence affects moral decisions:
@@ -86,7 +86,7 @@ Tests how a supervisor agent can guide group behavior:
 ### 3. Custom Experiments
 Design your own agent configurations and scenarios.
 
-## 📊 Metrics & Analysis
+## Metrics & Analysis
 
 ### Greatest Good Benchmark (GGB)
 - **Utilitarian Score**: Total welfare generated
@@ -102,7 +102,7 @@ Design your own agent configurations and scenarios.
 - Interactive Plotly dashboards
 - Comparative analysis across experiments
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 src/
@@ -116,7 +116,7 @@ experiments/
 └── experiment_runner.py  # Main experiment orchestration
 ```
 
-## 🔬 Research Applications
+## Research Applications
 
 This simulator is ideal for:
 - **AI Safety Research**: Understanding moral behavior in AI systems
@@ -132,18 +132,18 @@ Optimized for Apple M4 Max:
 - Efficient tensor operations with PyTorch
 - Parallel environment execution with PettingZoo
 
-## 🤝 Contributing
+## Contributing
 
 This is a research project exploring the intersection of AI, ethics, and emergent behavior. Contributions are welcome!
 
-## 📚 References
+## References
 
 - MAEBE: Multi-Agent Ethically-Aligned Behavior Evaluation
 - Greatest Good Benchmark (GGB) for utilitarian reasoning
 - PettingZoo multi-agent reinforcement learning
 - MADDPG: Multi-Agent Deep Deterministic Policy Gradient
 
-## 🎯 Future Directions
+## Future Directions
 
 - Implement more sophisticated moral frameworks
 - Add real-world inspired scenarios
@@ -153,4 +153,4 @@ This is a research project exploring the intersection of AI, ethics, and emergen
 
 ---
 
-Built with 💫 for exploring the fascinating intersection of AI and moral philosophy!
+Built for exploring the intersection of artificial intelligence and moral philosophy.
