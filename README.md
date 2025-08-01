@@ -29,10 +29,8 @@ This simulator creates a complex environment where multiple AI agents with diffe
 - **Interactive Visualizations**: Real-time dashboards and analysis
 
 ## 📋 Requirements
-
-- macOS with M4 Max (optimized for Apple Silicon)
 - Python 3.8+
-- 48GB RAM recommended for large-scale experiments
+
 
 ## 🛠️ Installation
 
