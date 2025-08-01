@@ -1,0 +1,27 @@
+# Core ML/RL Libraries
+torch>=2.0.0
+numpy>=1.24.0
+gymnasium>=0.28.0
+pettingzoo[classic,atari,butterfly]>=1.24.0  # Avoid box2d dependency
+stable-baselines3>=2.0.0
+
+# Multi-agent RL
+ray[rllib]>=2.5.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+networkx>=3.0
+plotly>=5.14.0
+
+# Utilities
+pandas>=2.0.0
+scipy>=1.10.0
+tqdm>=4.65.0
+tensorboard>=2.13.0
+
+# Development
+jupyter>=1.0.0
+ipykernel>=6.22.0
+pytest>=7.3.0
+black>=23.3.0
