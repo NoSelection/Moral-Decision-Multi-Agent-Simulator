@@ -127,7 +127,7 @@ This simulator is ideal for:
 
 ## 📈 Performance Notes
 
-Optimized for Apple M4 Max:
+Optimized for Apple
 - Leverages unified memory architecture
 - Efficient tensor operations with PyTorch
 - Parallel environment execution with PettingZoo
