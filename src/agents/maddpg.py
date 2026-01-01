@@ -1,10 +1,11 @@
+import random
+from collections import deque
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-from typing import List, Dict, Tuple, Optional
-from collections import deque
-import random
 
 
 class MADDPGActor(nn.Module):

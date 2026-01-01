@@ -1,12 +1,9 @@
 """Unit tests for moral metrics."""
 
 import pytest
-import numpy as np
 
 from src.metrics.moral_metrics import (
     MoralMetrics,
-    GreatestGoodBenchmark,
-    PeerPressureAnalyzer,
 )
 
 

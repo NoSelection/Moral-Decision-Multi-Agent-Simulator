@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
+from typing import Dict, List
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Dict, List, Tuple, Optional
-from abc import ABC, abstractmethod
 
 
 class MoralAgent(ABC):

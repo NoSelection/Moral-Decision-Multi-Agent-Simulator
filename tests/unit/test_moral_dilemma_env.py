@@ -1,6 +1,5 @@
 """Unit tests for the moral dilemma environment."""
 
-import pytest
 import numpy as np
 
 from src.environments.moral_dilemma_env import MoralDilemmaEnv

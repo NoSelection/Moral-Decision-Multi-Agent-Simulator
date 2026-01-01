@@ -1,51 +1,50 @@
 """Agent implementations for the moral decision simulator."""
 
-from src.agents.moral_agents import (
-    MoralAgent,
-    UtilitarianAgent,
-    DeontologicalAgent,
-    VirtueEthicsAgent,
-    EgoistAgent,
-    AdaptiveNeuralAgent,
-    SupervisorAgent,
-    create_agent,
-)
-
 from src.agents.maddpg import (
     MADDPG,
     MADDPGActor,
     MADDPGCritic,
     ReplayBuffer,
 )
+from src.agents.moral_agents import (
+    AdaptiveNeuralAgent,
+    DeontologicalAgent,
+    EgoistAgent,
+    MoralAgent,
+    SupervisorAgent,
+    UtilitarianAgent,
+    VirtueEthicsAgent,
+    create_agent,
+)
 
 # LLM agents are optional (require anthropic or google-generativeai packages)
 try:
     from src.agents.llm_agents import (
+        # Availability flags
+        ANTHROPIC_AVAILABLE,
+        GEMINI_AVAILABLE,
+        ClaudeCareEthicsAgent,
+        ClaudeDeontologicalAgent,
+        ClaudeFlexibleAgent,
+        # Claude agents
+        ClaudeUtilitarianAgent,
+        ClaudeVirtueEthicsAgent,
+        # Gemini agents (FREE TIER!)
+        GeminiAgent,
+        GeminiDeontologicalAgent,
+        GeminiFlexibleAgent,
+        GeminiUtilitarianAgent,
+        GeminiVirtueEthicsAgent,
         # Core classes
         LLMAgent,
         LLMAgentConfig,
         LLMProvider,
-        ReasoningTrace,
-        # Claude agents
-        ClaudeUtilitarianAgent,
-        ClaudeDeontologicalAgent,
-        ClaudeVirtueEthicsAgent,
-        ClaudeCareEthicsAgent,
-        ClaudeFlexibleAgent,
-        # Gemini agents (FREE TIER!)
-        GeminiAgent,
-        GeminiUtilitarianAgent,
-        GeminiDeontologicalAgent,
-        GeminiVirtueEthicsAgent,
-        GeminiFlexibleAgent,
         # Mock for testing
         MockLLMAgent,
+        ReasoningTrace,
+        create_gemini_agent,
         # Factory functions
         create_llm_agent,
-        create_gemini_agent,
-        # Availability flags
-        ANTHROPIC_AVAILABLE,
-        GEMINI_AVAILABLE,
     )
 
     LLM_AGENTS_AVAILABLE = True

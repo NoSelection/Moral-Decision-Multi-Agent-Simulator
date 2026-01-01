@@ -1,18 +1,17 @@
 """Unit tests for moral agents."""
 
-import pytest
 import numpy as np
+import pytest
 import torch
 
 from src.agents.moral_agents import (
-    create_agent,
-    MoralAgent,
-    UtilitarianAgent,
-    DeontologicalAgent,
-    VirtueEthicsAgent,
-    EgoistAgent,
     AdaptiveNeuralAgent,
+    DeontologicalAgent,
+    EgoistAgent,
     SupervisorAgent,
+    UtilitarianAgent,
+    VirtueEthicsAgent,
+    create_agent,
 )
 
 

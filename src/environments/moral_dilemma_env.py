@@ -1,8 +1,8 @@
+from typing import Dict, Optional
+
 import numpy as np
 from gymnasium import spaces
 from pettingzoo import ParallelEnv
-from pettingzoo.utils import parallel_to_aec, wrappers
-from typing import Dict, List, Tuple, Optional, Any
 
 
 class MoralDilemmaEnv(ParallelEnv):
@@ -64,8 +64,8 @@ class MoralDilemmaEnv(ParallelEnv):
         # Initialize state
         self.timestep = 0
         self.remaining_resources = self.total_resources
-        self.agent_resources = {agent: 0.0 for agent in self.agents}
-        self.last_actions = {agent: 0.5 for agent in self.agents}  # Start neutral
+        self.agent_resources = dict.fromkeys(self.agents, 0.0)
+        self.last_actions = dict.fromkeys(self.agents, 0.5)  # Start neutral
         self.episode_history = []
 
         # Track moral metrics
@@ -121,8 +121,8 @@ class MoralDilemmaEnv(ParallelEnv):
         observations = {agent: self._get_observation(agent) for agent in self.agents}
 
         # Check termination
-        truncations = {agent: self.timestep >= self.episode_length for agent in self.agents}
-        terminations = {agent: False for agent in self.agents}
+        truncations = dict.fromkeys(self.agents, self.timestep >= self.episode_length)
+        terminations = dict.fromkeys(self.agents, False)
 
         # Additional info
         infos = {

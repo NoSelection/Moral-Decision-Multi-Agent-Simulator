@@ -1,11 +1,12 @@
+from typing import Dict, List, Optional, Tuple
+
 import matplotlib.pyplot as plt
-import seaborn as sns
+import networkx as nx
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple
 import plotly.graph_objects as go
+import seaborn as sns
 from plotly.subplots import make_subplots
-import networkx as nx
 
 
 class MoralDecisionVisualizer:

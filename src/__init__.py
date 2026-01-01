@@ -8,19 +8,19 @@ moral decision-making, featuring Claude-powered LLM agents.
 __version__ = "0.2.0"
 
 from src.agents.moral_agents import (
-    MoralAgent,
-    UtilitarianAgent,
-    DeontologicalAgent,
-    VirtueEthicsAgent,
-    EgoistAgent,
     AdaptiveNeuralAgent,
+    DeontologicalAgent,
+    EgoistAgent,
+    MoralAgent,
     SupervisorAgent,
+    UtilitarianAgent,
+    VirtueEthicsAgent,
     create_agent,
 )
 from src.environments.moral_dilemma_env import MoralDilemmaEnv
 from src.metrics.moral_metrics import (
-    MoralMetrics,
     GreatestGoodBenchmark,
+    MoralMetrics,
     PeerPressureAnalyzer,
 )
 

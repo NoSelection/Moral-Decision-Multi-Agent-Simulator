@@ -5,7 +5,7 @@ Main entry point for running experiments on moral decision-making in multi-agent
 """
 
 import argparse
-import sys
+
 from experiments.experiment_runner import MoralExperimentRunner
 
 
@@ -63,7 +63,7 @@ def main():
     ║  Exploring emergent moral dynamics in multi-agent systems   ║
     ║  Inspired by MAEBE research on moral preferences            ║
     ╚══════════════════════════════════════════════════════════════╝
-    
+
     Configuration:
     - Experiment: {args.experiment}
     - Agents: {args.num_agents}

@@ -8,14 +8,15 @@ Usage:
     python train_demo.py
 """
 
+from datetime import datetime
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-from datetime import datetime
 
+from src.agents.moral_agents import create_agent
 from src.environments.moral_dilemma_env import MoralDilemmaEnv
-from src.agents.moral_agents import create_agent, AdaptiveNeuralAgent
 from src.metrics.moral_metrics import GreatestGoodBenchmark, PeerPressureAnalyzer
 
 
@@ -86,7 +87,7 @@ class MoralTrainingDemo:
 
         for episode in tqdm(range(num_episodes), desc="🧠 Training Neural Agents"):
             observations, _ = env.reset()
-            episode_rewards = {agent: 0.0 for agent in env.agents}
+            episode_rewards = dict.fromkeys(env.agents, 0.0)
             episode_claims = []
 
             for step in range(env.episode_length):
@@ -265,14 +266,14 @@ class MoralTrainingDemo:
 
         # Final metrics
         final_metrics = ggb.calculate_metrics()
-        print(f"\nFinal Metrics:")
+        print("\nFinal Metrics:")
         print(f"  Utilitarian Score: {final_metrics.utilitarian_score:.3f}")
         print(f"  Fairness Score: {final_metrics.fairness_score:.3f}")
         print(f"  Cooperation Index: {final_metrics.cooperation_index:.3f}")
 
         # Show final resource distribution
         final_resources = resources_history[-1]
-        print(f"\nFinal Resource Distribution:")
+        print("\nFinal Resource Distribution:")
         for agent_id, resources in final_resources.items():
             agent_type = (
                 "Adaptive"

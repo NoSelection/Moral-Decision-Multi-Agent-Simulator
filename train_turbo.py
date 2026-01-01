@@ -8,18 +8,17 @@ Usage:
     python train_turbo.py
 """
 
+import multiprocessing as mp
+import time
+from concurrent.futures import ProcessPoolExecutor
+from datetime import datetime
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-from datetime import datetime
-import multiprocessing as mp
-from concurrent.futures import ProcessPoolExecutor
-import time
 
 from src.environments.moral_dilemma_env import MoralDilemmaEnv
-from src.agents.moral_agents import create_agent
 
 
 class TurboMoralTraining:
@@ -33,13 +32,13 @@ class TurboMoralTraining:
         # Enable hardware acceleration
         if torch.backends.mps.is_available():
             self.device = torch.device("mps")
-            print(f"🚀 Hardware GPU Acceleration Enabled!")
+            print("🚀 Hardware GPU Acceleration Enabled!")
         elif torch.cuda.is_available():
             self.device = torch.device("cuda")
-            print(f"🚀 CUDA GPU Acceleration Enabled!")
+            print("🚀 CUDA GPU Acceleration Enabled!")
         else:
             self.device = torch.device("cpu")
-            print(f"💻 Using CPU processing")
+            print("💻 Using CPU processing")
 
         # Max threading
         torch.set_num_threads(self.num_workers)
@@ -130,7 +129,7 @@ class TurboMoralTraining:
 
         total_time = time.time() - start_time
 
-        print(f"\n🎉 TURBO TRAINING COMPLETE!")
+        print("\n🎉 TURBO TRAINING COMPLETE!")
         print(f"⏱️  Total Time: {total_time/60:.1f} minutes ({total_time:.0f} seconds)")
         print(f"🚀 Final Speed: {episodes/total_time:.0f} episodes/sec")
         print(f"💪 Average CPU Usage: {self._estimate_cpu_usage(total_time, episodes):.1f}%")
@@ -217,7 +216,7 @@ class TurboMoralTraining:
         final_fairness = np.mean(history["fairness"][-1000:])
         final_cooperation = np.mean(history["cooperation"][-1000:])
 
-        print(f"🏆 Final Performance (last 1000 episodes):")
+        print("🏆 Final Performance (last 1000 episodes):")
         print(f"   Total Reward: {final_reward:.1f}")
         print(f"   Fairness: {final_fairness:.3f} ({final_fairness*100:.1f}%)")
         print(f"   Cooperation: {final_cooperation:.3f}")
@@ -226,7 +225,7 @@ class TurboMoralTraining:
         early_reward = np.mean(history["rewards"][:1000])
         improvement = final_reward - early_reward
 
-        print(f"\n📈 Learning Progress:")
+        print("\n📈 Learning Progress:")
         print(f"   Early (1-1000): {early_reward:.1f}")
         print(f"   Final ({episodes-999}-{episodes}): {final_reward:.1f}")
         print(f"   Improvement: {improvement:.1f} ({improvement/early_reward*100:.1f}%)")
@@ -299,7 +298,7 @@ class TurboMoralTraining:
         colors = ["blue", "green", "purple", "orange"]
 
         bars = ax.bar(labels, metrics, color=colors, alpha=0.7)
-        ax.set_title(f"📊 Final Performance Summary", fontweight="bold")
+        ax.set_title("📊 Final Performance Summary", fontweight="bold")
 
         # Add values on bars
         for bar, value in zip(bars, metrics):

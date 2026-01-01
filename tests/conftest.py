@@ -1,19 +1,18 @@
 """Pytest configuration and shared fixtures."""
 
-import pytest
 import numpy as np
+import pytest
 import torch
 
-from src.environments.moral_dilemma_env import MoralDilemmaEnv
 from src.agents.moral_agents import (
-    create_agent,
-    UtilitarianAgent,
-    DeontologicalAgent,
-    VirtueEthicsAgent,
-    EgoistAgent,
     AdaptiveNeuralAgent,
+    DeontologicalAgent,
+    EgoistAgent,
     SupervisorAgent,
+    UtilitarianAgent,
+    VirtueEthicsAgent,
 )
+from src.environments.moral_dilemma_env import MoralDilemmaEnv
 from src.metrics.moral_metrics import GreatestGoodBenchmark, PeerPressureAnalyzer
 
 

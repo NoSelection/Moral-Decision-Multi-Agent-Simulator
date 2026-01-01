@@ -18,27 +18,28 @@ Supported LLM Providers:
 - Gemini (Google) - FREE TIER AVAILABLE! requires GOOGLE_API_KEY or GEMINI_API_KEY
 """
 
-import os
 import json
-import numpy as np
+import os
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Literal
-from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 from tqdm import tqdm
 
-from src.environments.moral_dilemma_env import MoralDilemmaEnv
 from src.agents.moral_agents import create_agent
+from src.environments.moral_dilemma_env import MoralDilemmaEnv
 from src.metrics.moral_metrics import GreatestGoodBenchmark, PeerPressureAnalyzer
 
 # Try to import LLM agents
 try:
     from src.agents.llm_agents import (
-        create_llm_agent,
-        create_gemini_agent,
-        MockLLMAgent,
-        LLMAgentConfig,
         ANTHROPIC_AVAILABLE,
         GEMINI_AVAILABLE,
+        LLMAgentConfig,
+        MockLLMAgent,
+        create_gemini_agent,
+        create_llm_agent,
     )
 
     LLM_AGENTS_AVAILABLE = ANTHROPIC_AVAILABLE or GEMINI_AVAILABLE

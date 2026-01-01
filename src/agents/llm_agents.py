@@ -12,11 +12,11 @@ Supported providers:
 
 import os
 import re
-import numpy as np
-from typing import Dict, List, Optional, Any, Literal
-from dataclasses import dataclass, field
-from abc import abstractmethod
+from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 
 from src.agents.moral_agents import MoralAgent
 
@@ -753,7 +753,7 @@ class MockLLMAgent(MoralAgent):
         elif self.moral_framework == "deontological":
             # Always take fair share
             action = 0.25
-            reasoning = f"As a deontologist, I follow the rule of fair share regardless of consequences. I claim exactly 0.25."
+            reasoning = "As a deontologist, I follow the rule of fair share regardless of consequences. I claim exactly 0.25."
 
         elif self.moral_framework == "virtue_ethics":
             # Practice moderation

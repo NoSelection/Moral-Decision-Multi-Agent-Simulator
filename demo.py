@@ -8,11 +8,11 @@ Usage:
     python demo.py
 """
 
-import numpy as np
-from src.environments.moral_dilemma_env import MoralDilemmaEnv
-from src.agents.moral_agents import create_agent
-from src.metrics.moral_metrics import GreatestGoodBenchmark
 import matplotlib.pyplot as plt
+
+from src.agents.moral_agents import create_agent
+from src.environments.moral_dilemma_env import MoralDilemmaEnv
+from src.metrics.moral_metrics import GreatestGoodBenchmark
 
 
 def run_simple_demo():
