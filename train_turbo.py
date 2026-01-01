@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-TURBO TRAINING - Maximum M4 Max Performance!
+TURBO TRAINING - Maximum Performance!
 Uses all cores, vectorized operations, and aggressive optimization
-"""
 
-import sys
-sys.path.append('.')
+Usage:
+    pip install -e .  # Install package in editable mode first
+    python train_turbo.py
+"""
 
 import numpy as np
 import torch

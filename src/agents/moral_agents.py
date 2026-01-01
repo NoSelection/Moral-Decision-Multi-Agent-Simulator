@@ -138,23 +138,56 @@ class AdaptiveNeuralAgent(MoralAgent):
             claim_fraction = self.network(obs_tensor).squeeze().numpy()
         return np.array([claim_fraction], dtype=np.float32)
     
-    def update(self, observations: List[np.ndarray], actions: List[np.ndarray], 
+    def update(self, observations: List[np.ndarray], actions: List[np.ndarray],
                rewards: List[float]):
-        """Update neural network based on experience."""
+        """Update neural network based on experience.
+
+        Uses advantage-weighted regression: actions that led to above-average
+        rewards are reinforced, while below-average actions are discouraged.
+        """
+        if len(observations) < 2:
+            return  # Need at least 2 samples for meaningful update
+
         obs_tensor = torch.FloatTensor(np.array(observations))
         action_tensor = torch.FloatTensor(np.array(actions))
         reward_tensor = torch.FloatTensor(np.array(rewards))
-        
-        # Simple supervised learning on high-reward actions
+
+        # Advantage normalization: (reward - mean) / (std + eps)
+        # This properly handles negative rewards and provides stable gradients
+        reward_mean = reward_tensor.mean()
+        reward_std = reward_tensor.std()
+        eps = 1e-8  # Prevent division by zero
+
+        # Normalize rewards to advantages
+        advantages = (reward_tensor - reward_mean) / (reward_std + eps)
+
+        # Convert advantages to weights (positive values only for weighting)
+        # Use exponential weighting to emphasize high-advantage actions
+        weights = torch.exp(advantages - advantages.max())  # Subtract max for numerical stability
+        weights = weights / weights.sum()  # Normalize to sum to 1
+
+        # Compute predictions and loss
         predictions = self.network(obs_tensor)
-        
-        # Weight by rewards (learn from successful actions)
-        weights = F.softmax(reward_tensor, dim=0)
-        loss = F.mse_loss(predictions.squeeze(), action_tensor.squeeze(), reduction='none')
-        weighted_loss = (loss * weights).mean()
-        
+
+        # Handle shape mismatches
+        pred_squeezed = predictions.squeeze()
+        action_squeezed = action_tensor.squeeze()
+
+        # Ensure 1D tensors for element-wise operations
+        if pred_squeezed.dim() == 0:
+            pred_squeezed = pred_squeezed.unsqueeze(0)
+        if action_squeezed.dim() == 0:
+            action_squeezed = action_squeezed.unsqueeze(0)
+
+        loss = F.mse_loss(pred_squeezed, action_squeezed, reduction='none')
+        weighted_loss = (loss * weights).sum()
+
         self.optimizer.zero_grad()
         weighted_loss.backward()
+
+        # Gradient clipping for stability
+        torch.nn.utils.clip_grad_norm_(self.network.parameters(), max_norm=1.0)
+
         self.optimizer.step()
 
 

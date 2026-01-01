@@ -2,10 +2,11 @@
 """
 Quick demo of the Moral-Decision Multi-Agent Simulator
 Run this to see the simulator in action without full dependencies!
-"""
 
-import sys
-sys.path.append('.')
+Usage:
+    pip install -e .  # Install package in editable mode first
+    python demo.py
+"""
 
 import numpy as np
 from src.environments.moral_dilemma_env import MoralDilemmaEnv

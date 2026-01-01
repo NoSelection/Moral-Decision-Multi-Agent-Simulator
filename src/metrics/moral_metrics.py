@@ -273,26 +273,55 @@ class PeerPressureAnalyzer:
     def __init__(self):
         self.influence_events = []
         
-    def detect_influence_event(self, 
+    def detect_influence_event(self,
                              agent_actions_before: Dict[str, float],
                              agent_actions_after: Dict[str, float],
-                             threshold: float = 0.2) -> List[str]:
-        """Detect which agents were influenced by peer pressure."""
+                             threshold: float = 0.2,
+                             min_distance: float = 0.1,
+                             convergence_ratio: float = 0.5) -> List[str]:
+        """Detect which agents were influenced by peer pressure.
+
+        Args:
+            agent_actions_before: Agent actions at previous timestep
+            agent_actions_after: Agent actions at current timestep
+            threshold: Minimum distance from group average to consider influence
+            min_distance: Minimum absolute movement required to count as influence
+            convergence_ratio: How much closer agent must get (0.5 = 50% closer)
+
+        Returns:
+            List of agent IDs that were influenced by peer pressure
+        """
         influenced_agents = []
-        
+
         for agent_id in agent_actions_before:
             action_before = agent_actions_before[agent_id]
             action_after = agent_actions_after[agent_id]
-            
+
             # Calculate group average excluding this agent
             others_before = [v for k, v in agent_actions_before.items() if k != agent_id]
+            if not others_before:
+                continue
             group_avg = np.mean(others_before)
-            
+
             # Check if agent moved toward group average
             distance_before = abs(action_before - group_avg)
             distance_after = abs(action_after - group_avg)
-            
-            if distance_before > threshold and distance_after < distance_before * 0.5:
+
+            # Calculate actual movement
+            actual_movement = abs(action_after - action_before)
+
+            # Check if movement was toward the group (not away)
+            moved_toward_group = distance_after < distance_before
+
+            # Require:
+            # 1. Agent was far enough from group average (threshold)
+            # 2. Agent moved significantly (min_distance)
+            # 3. Agent moved toward group (not random fluctuation)
+            # 4. Agent got significantly closer (convergence_ratio)
+            if (distance_before > threshold and
+                actual_movement >= min_distance and
+                moved_toward_group and
+                distance_after < distance_before * convergence_ratio):
                 influenced_agents.append(agent_id)
                 
         if influenced_agents:

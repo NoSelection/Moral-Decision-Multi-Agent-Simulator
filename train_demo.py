@@ -2,10 +2,11 @@
 """
 Training demonstration for the Moral-Decision Multi-Agent Simulator
 Shows how agents learn and adapt their moral behaviors over time
-"""
 
-import sys
-sys.path.append('.')
+Usage:
+    pip install -e .  # Install package in editable mode first
+    python train_demo.py
+"""
 
 import numpy as np
 import torch

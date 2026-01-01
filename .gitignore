@@ -38,3 +38,20 @@ Thumbs.db
 experiments/outputs/
 data/processed/
 *.log
+
+# Environment and secrets (NEVER commit API keys!)
+.env
+.env.local
+.env.production
+secrets.yaml
+secrets.json
+*_api_key*
+run_test.py
+
+# BUT keep the example file
+!.env.example
+
+# Build artifacts
+*.egg-info/
+dist/
+build/

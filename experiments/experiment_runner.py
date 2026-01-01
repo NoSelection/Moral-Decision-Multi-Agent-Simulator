@@ -1,5 +1,10 @@
-import sys
-sys.path.append('..')
+"""
+Experiment runner for moral decision-making experiments.
+
+Usage:
+    pip install -e .  # Install package in editable mode first
+    python -m experiments.experiment_runner
+"""
 
 import numpy as np
 import torch

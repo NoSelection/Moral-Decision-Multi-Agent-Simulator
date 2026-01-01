@@ -163,18 +163,26 @@ class MADDPG:
             agent_dones = torch.FloatTensor([d[agent_id] for d in done_batch]).unsqueeze(1)
             
             # Concatenate all observations and actions for centralized critic
-            all_states = torch.FloatTensor([
-                np.concatenate([s[aid] for aid in self.agent_ids]) 
-                for s in state_batch
-            ])
-            all_actions = torch.FloatTensor([
-                np.concatenate([a[aid] for aid in self.agent_ids]) 
-                for a in action_batch
-            ])
-            all_next_states = torch.FloatTensor([
-                np.concatenate([s[aid] for aid in self.agent_ids]) 
-                for s in next_state_batch
-            ])
+            # Pre-allocate and batch concatenation for efficiency
+            all_states_list = []
+            all_actions_list = []
+            all_next_states_list = []
+
+            for i in range(len(state_batch)):
+                try:
+                    state_concat = np.concatenate([state_batch[i][aid] for aid in self.agent_ids])
+                    action_concat = np.concatenate([action_batch[i][aid] for aid in self.agent_ids])
+                    next_state_concat = np.concatenate([next_state_batch[i][aid] for aid in self.agent_ids])
+
+                    all_states_list.append(state_concat)
+                    all_actions_list.append(action_concat)
+                    all_next_states_list.append(next_state_concat)
+                except KeyError as e:
+                    raise ValueError(f"Missing agent {e} in batch data. Expected agents: {self.agent_ids}")
+
+            all_states = torch.FloatTensor(np.array(all_states_list))
+            all_actions = torch.FloatTensor(np.array(all_actions_list))
+            all_next_states = torch.FloatTensor(np.array(all_next_states_list))
             
             # Compute target actions for next states
             target_actions = []
