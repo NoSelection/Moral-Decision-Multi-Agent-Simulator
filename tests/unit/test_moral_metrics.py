@@ -52,7 +52,9 @@ class TestGreatestGoodBenchmark:
         assert metrics.utilitarian_score == 0.0
         assert metrics.fairness_score == 0.0
 
-    def test_calculate_metrics_with_data(self, ggb, sample_actions, sample_resources, sample_rewards):
+    def test_calculate_metrics_with_data(
+        self, ggb, sample_actions, sample_resources, sample_rewards
+    ):
         """Test metrics calculation with data."""
         # Add multiple updates
         for _ in range(10):
@@ -191,10 +193,7 @@ class TestPeerPressureAnalyzer:
         }
 
         influenced = peer_analyzer.detect_influence_event(
-            actions_before, actions_after,
-            threshold=0.2,
-            min_distance=0.1,
-            convergence_ratio=0.7
+            actions_before, actions_after, threshold=0.2, min_distance=0.1, convergence_ratio=0.7
         )
         assert "agent_0" in influenced
 
@@ -232,9 +231,7 @@ class TestPeerPressureAnalyzer:
         }
 
         peer_analyzer.detect_influence_event(
-            actions_before, actions_after,
-            threshold=0.2,
-            min_distance=0.1
+            actions_before, actions_after, threshold=0.2, min_distance=0.1
         )
 
         if peer_analyzer.influence_events:
@@ -265,9 +262,7 @@ class TestPeerPressureAnalyzer:
                 "agent_3": 0.3,
             }
             peer_analyzer.detect_influence_event(
-                actions_before, actions_after,
-                threshold=0.2,
-                min_distance=0.1
+                actions_before, actions_after, threshold=0.2, min_distance=0.1
             )
 
         summary = peer_analyzer.get_influence_summary()

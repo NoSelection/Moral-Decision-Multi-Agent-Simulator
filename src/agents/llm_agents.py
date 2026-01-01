@@ -23,6 +23,7 @@ from src.agents.moral_agents import MoralAgent
 
 class LLMProvider(Enum):
     """Supported LLM providers."""
+
     CLAUDE = "claude"
     GEMINI = "gemini"
 
@@ -30,6 +31,7 @@ class LLMProvider(Enum):
 # Try to import anthropic, but make it optional
 try:
     from anthropic import Anthropic
+
     ANTHROPIC_AVAILABLE = True
 except ImportError:
     ANTHROPIC_AVAILABLE = False
@@ -38,6 +40,7 @@ except ImportError:
 # Try to import Google's generative AI, but make it optional
 try:
     import google.generativeai as genai
+
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
@@ -47,6 +50,7 @@ except ImportError:
 @dataclass
 class ReasoningTrace:
     """Container for a single reasoning trace from an LLM agent."""
+
     observation: List[float]
     reasoning: str
     action: float
@@ -58,6 +62,7 @@ class ReasoningTrace:
 @dataclass
 class LLMAgentConfig:
     """Configuration for LLM-based agents."""
+
     provider: str = "claude"  # "claude" or "gemini"
     model: str = "claude-sonnet-4-20250514"  # or "gemini-2.5-flash" for Gemini
     max_tokens: int = 1024
@@ -98,7 +103,6 @@ Key principles you follow:
 
 When making decisions, calculate the expected total welfare for each option
 and choose the one that maximizes overall good.""",
-
     "deontological": """Your moral framework is DEONTOLOGICAL. You follow moral rules regardless of consequences.
 
 Key principles you follow:
@@ -110,7 +114,6 @@ Key principles you follow:
 
 When making decisions, identify the relevant moral rule and follow it strictly,
 regardless of the expected consequences.""",
-
     "virtue_ethics": """Your moral framework is VIRTUE ETHICS. You aim to embody virtuous character.
 
 Key virtues you cultivate:
@@ -122,7 +125,6 @@ Key virtues you cultivate:
 
 When making decisions, ask yourself: "What would a virtuous person do in this situation?"
 Seek the golden mean between extremes.""",
-
     "care_ethics": """Your moral framework is CARE ETHICS. You prioritize relationships and responsiveness.
 
 Key principles you follow:
@@ -134,7 +136,6 @@ Key principles you follow:
 
 When making decisions, consider how your action affects your relationships
 with other agents and how to best care for those who depend on shared resources.""",
-
     "contractarian": """Your moral framework is CONTRACTARIAN. You act based on rational agreements.
 
 Key principles you follow:
@@ -146,7 +147,6 @@ Key principles you follow:
 
 When making decisions, ask: "What rule would all agents rationally agree to
 if none knew their position in advance?" """,
-
     "flexible": """You are a FLEXIBLE moral reasoner who considers multiple ethical perspectives.
 
 You draw upon:
@@ -157,7 +157,7 @@ You draw upon:
 - Contractarianism (rational agreement)
 
 When making decisions, consider multiple frameworks and explain which ones
-inform your decision and why. Be explicit about trade-offs between frameworks."""
+inform your decision and why. Be explicit about trade-offs between frameworks.""",
 }
 
 
@@ -235,8 +235,7 @@ class LLMAgent(MoralAgent):
     def _build_system_prompt(self) -> str:
         """Construct the system prompt based on moral framework."""
         framework_prompt = MORAL_FRAMEWORK_PROMPTS.get(
-            self.moral_framework,
-            MORAL_FRAMEWORK_PROMPTS["flexible"]
+            self.moral_framework, MORAL_FRAMEWORK_PROMPTS["flexible"]
         )
         return BASE_SYSTEM_PROMPT + "\n\n" + framework_prompt
 
@@ -329,7 +328,7 @@ DECISION: [A single number between 0.0 and 1.0]
             max_tokens=self.config.max_tokens,
             temperature=self.config.temperature,
             system=self.system_prompt,
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": prompt}],
         )
 
         # Parse response
@@ -342,7 +341,7 @@ DECISION: [A single number between 0.0 and 1.0]
             reasoning=reasoning,
             action=action,
             moral_framework=self.moral_framework,
-            timestamp=self.timestep
+            timestamp=self.timestep,
         )
         self.reasoning_history.append(trace)
         self.timestep += 1
@@ -483,8 +482,7 @@ class GeminiAgent(MoralAgent):
     def _build_system_prompt(self) -> str:
         """Construct the system prompt based on moral framework."""
         framework_prompt = MORAL_FRAMEWORK_PROMPTS.get(
-            self.moral_framework,
-            MORAL_FRAMEWORK_PROMPTS["flexible"]
+            self.moral_framework, MORAL_FRAMEWORK_PROMPTS["flexible"]
         )
         return BASE_SYSTEM_PROMPT + "\n\n" + framework_prompt
 
@@ -552,6 +550,7 @@ DECISION: [A single number between 0.0 and 1.0]
     def act(self, observation: np.ndarray) -> np.ndarray:
         """Make a decision using Gemini's moral reasoning."""
         import time
+
         prompt = self._format_observation(observation)
 
         # Get Gemini's response with retry for rate limits
@@ -581,7 +580,7 @@ DECISION: [A single number between 0.0 and 1.0]
             reasoning=reasoning,
             action=action,
             moral_framework=self.moral_framework,
-            timestamp=self.timestep
+            timestamp=self.timestep,
         )
         self.reasoning_history.append(trace)
         self.timestep += 1
@@ -612,24 +611,28 @@ DECISION: [A single number between 0.0 and 1.0]
 
 class GeminiUtilitarianAgent(GeminiAgent):
     """Gemini agent with utilitarian moral framework."""
+
     def __init__(self, agent_id: str, **kwargs):
         super().__init__(agent_id, moral_framework="utilitarian", **kwargs)
 
 
 class GeminiDeontologicalAgent(GeminiAgent):
     """Gemini agent with deontological moral framework."""
+
     def __init__(self, agent_id: str, **kwargs):
         super().__init__(agent_id, moral_framework="deontological", **kwargs)
 
 
 class GeminiVirtueEthicsAgent(GeminiAgent):
     """Gemini agent with virtue ethics moral framework."""
+
     def __init__(self, agent_id: str, **kwargs):
         super().__init__(agent_id, moral_framework="virtue_ethics", **kwargs)
 
 
 class GeminiFlexibleAgent(GeminiAgent):
     """Gemini agent that considers multiple moral frameworks."""
+
     def __init__(self, agent_id: str, **kwargs):
         super().__init__(agent_id, moral_framework="flexible", **kwargs)
 
@@ -641,10 +644,7 @@ class GeminiFlexibleAgent(GeminiAgent):
 
 # Factory function for creating LLM agents
 def create_llm_agent(
-    moral_framework: str,
-    agent_id: str,
-    provider: str = "claude",
-    **kwargs
+    moral_framework: str, agent_id: str, provider: str = "claude", **kwargs
 ) -> MoralAgent:
     """Factory function to create LLM-based moral agents.
 
@@ -688,8 +688,7 @@ def create_llm_agent(
     else:  # Default to Claude
         if not ANTHROPIC_AVAILABLE:
             raise ImportError(
-                "anthropic package not installed. "
-                "Install with: pip install anthropic"
+                "anthropic package not installed. " "Install with: pip install anthropic"
             )
 
         claude_classes = {
@@ -706,11 +705,7 @@ def create_llm_agent(
         return agent_class(agent_id, **kwargs)
 
 
-def create_gemini_agent(
-    moral_framework: str,
-    agent_id: str,
-    **kwargs
-) -> GeminiAgent:
+def create_gemini_agent(moral_framework: str, agent_id: str, **kwargs) -> GeminiAgent:
     """Convenience function to create Gemini agents.
 
     Gemini has a FREE TIER - perfect for experimentation!
@@ -733,12 +728,7 @@ class MockLLMAgent(MoralAgent):
     useful for testing and development without API costs.
     """
 
-    def __init__(
-        self,
-        agent_id: str,
-        moral_framework: str = "flexible",
-        **kwargs
-    ):
+    def __init__(self, agent_id: str, moral_framework: str = "flexible", **kwargs):
         super().__init__(agent_id, f"mock_llm_{moral_framework}")
         self.moral_framework = moral_framework
         self.reasoning_history: List[ReasoningTrace] = []
@@ -794,7 +784,7 @@ class MockLLMAgent(MoralAgent):
             reasoning=reasoning,
             action=action,
             moral_framework=self.moral_framework,
-            timestamp=self.timestep
+            timestamp=self.timestep,
         )
         self.reasoning_history.append(trace)
         self.timestep += 1

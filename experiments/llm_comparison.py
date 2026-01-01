@@ -40,6 +40,7 @@ try:
         ANTHROPIC_AVAILABLE,
         GEMINI_AVAILABLE,
     )
+
     LLM_AGENTS_AVAILABLE = ANTHROPIC_AVAILABLE or GEMINI_AVAILABLE
 except ImportError:
     LLM_AGENTS_AVAILABLE = False
@@ -51,6 +52,7 @@ except ImportError:
 @dataclass
 class ExperimentConfig:
     """Configuration for an LLM comparison experiment."""
+
     name: str
     num_episodes: int = 20
     episode_length: int = 50
@@ -65,6 +67,7 @@ class ExperimentConfig:
 @dataclass
 class ExperimentResult:
     """Results from a single experiment run."""
+
     config_name: str
     agent_types: Dict[str, str]
     metrics: Dict[str, float]
@@ -99,7 +102,9 @@ class LLMComparisonExperiment:
 
         # Get API key based on provider
         if self.llm_provider == "gemini":
-            self.api_key = api_key or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+            self.api_key = (
+                api_key or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+            )
         else:
             self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
 
@@ -119,7 +124,7 @@ class LLMComparisonExperiment:
                     {"type": "rule", "framework": "deontological"},
                     {"type": "rule", "framework": "virtue_ethics"},
                     {"type": "rule", "framework": "egoist"},
-                ]
+                ],
             },
             # Experiment 2: Single LLM utilitarian vs rule-based
             {
@@ -130,7 +135,7 @@ class LLMComparisonExperiment:
                     {"type": "rule", "framework": "deontological"},
                     {"type": "rule", "framework": "virtue_ethics"},
                     {"type": "rule", "framework": "egoist"},
-                ]
+                ],
             },
             # Experiment 3: LLM deontological vs rule-based
             {
@@ -141,7 +146,7 @@ class LLMComparisonExperiment:
                     {"type": "llm", "framework": "deontological"},
                     {"type": "rule", "framework": "virtue_ethics"},
                     {"type": "rule", "framework": "egoist"},
-                ]
+                ],
             },
             # Experiment 4: All LLM agents with different frameworks
             {
@@ -152,7 +157,7 @@ class LLMComparisonExperiment:
                     {"type": "llm", "framework": "deontological"},
                     {"type": "llm", "framework": "virtue_ethics"},
                     {"type": "llm", "framework": "care_ethics"},
-                ]
+                ],
             },
             # Experiment 5: LLM flexible vs specialists
             {
@@ -163,7 +168,7 @@ class LLMComparisonExperiment:
                     {"type": "rule", "framework": "utilitarian"},
                     {"type": "rule", "framework": "deontological"},
                     {"type": "rule", "framework": "egoist"},
-                ]
+                ],
             },
             # Experiment 6: Mixed LLM + learned agents
             {
@@ -174,7 +179,7 @@ class LLMComparisonExperiment:
                     {"type": "adaptive", "obs_dim": 7},
                     {"type": "rule", "framework": "utilitarian"},
                     {"type": "rule", "framework": "egoist"},
-                ]
+                ],
             },
         ]
 
@@ -261,8 +266,7 @@ class LLMComparisonExperiment:
 
         # Run episodes
         for episode in tqdm(
-            range(env_config.num_episodes),
-            desc=f"Running {experiment_config['name']}"
+            range(env_config.num_episodes), desc=f"Running {experiment_config['name']}"
         ):
             observations, _ = env.reset()
             episode_reward = 0.0
@@ -291,14 +295,16 @@ class LLMComparisonExperiment:
                     for agent_id, agent in agents.items():
                         if hasattr(agent, "reasoning_history") and agent.reasoning_history:
                             last_trace = agent.reasoning_history[-1]
-                            reasoning_samples.append({
-                                "episode": episode,
-                                "step": step,
-                                "agent_id": agent_id,
-                                "agent_type": agent_types[agent_id],
-                                "reasoning": last_trace.reasoning,
-                                "action": last_trace.action,
-                            })
+                            reasoning_samples.append(
+                                {
+                                    "episode": episode,
+                                    "step": step,
+                                    "agent_id": agent_id,
+                                    "agent_type": agent_types[agent_id],
+                                    "reasoning": last_trace.reasoning,
+                                    "action": last_trace.action,
+                                }
+                            )
 
                 observations = next_obs
                 if any(truncs.values()):
@@ -384,7 +390,7 @@ class LLMComparisonExperiment:
                     "cooperation_history": result.cooperation_history,
                 }
                 for name, result in results.items()
-            }
+            },
         }
 
         # Custom encoder for numpy types
@@ -488,21 +494,23 @@ def main():
 
     parser = argparse.ArgumentParser(description="Run LLM moral reasoning comparison experiments")
     parser.add_argument(
-        "--provider", "-p",
+        "--provider",
+        "-p",
         choices=["gemini", "claude"],
         default="gemini",
-        help="LLM provider to use (default: gemini - has FREE tier!)"
+        help="LLM provider to use (default: gemini - has FREE tier!)",
     )
     parser.add_argument(
         "--real-llm",
         action="store_true",
-        help="Use real LLM API instead of mock (requires API key)"
+        help="Use real LLM API instead of mock (requires API key)",
     )
     parser.add_argument(
-        "--episodes", "-n",
+        "--episodes",
+        "-n",
         type=int,
         default=10,
-        help="Number of episodes per experiment (default: 10)"
+        help="Number of episodes per experiment (default: 10)",
     )
     args = parser.parse_args()
 
@@ -511,7 +519,8 @@ def main():
         "claude": "Claude (paid API)",
     }
 
-    print(f"""
+    print(
+        f"""
     +==============================================================+
     |           LLM MORAL REASONING COMPARISON                     |
     |                                                              |
@@ -521,7 +530,8 @@ def main():
     |  Provider: {provider_info[args.provider]:<43}|
     |  Mode: {'REAL API' if args.real_llm else 'MOCK (no API calls)':<47}|
     +==============================================================+
-    """)
+    """
+    )
 
     if args.real_llm:
         if args.provider == "gemini":
@@ -559,9 +569,9 @@ def main():
     results = runner.run_all_experiments(env_config)
 
     # Analyze results
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("ANALYSIS")
-    print("="*60)
+    print("=" * 60)
 
     reasoning_analysis = runner.analyze_reasoning_quality(results)
     adherence_scores = runner.compare_framework_adherence(results)
@@ -570,9 +580,9 @@ def main():
     for exp_name, score in adherence_scores.items():
         print(f"  {exp_name}: {score:.2%}")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXPERIMENT COMPLETE")
-    print("="*60)
+    print("=" * 60)
 
     return results
 
