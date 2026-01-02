@@ -1,5 +1,7 @@
 """Unit tests for moral metrics."""
 
+import warnings
+
 import pytest
 
 from src.metrics.moral_metrics import (
@@ -267,6 +269,18 @@ class TestPeerPressureAnalyzer:
         if summary["total_events"] > 0:
             assert summary["total_events"] >= 1
             assert "most_influenced_agents" in summary
+
+    def test_peer_influence_constant_sequences_no_warning(self, ggb, sample_resources, sample_rewards):
+        """Peer influence should handle constant sequences without warnings."""
+        constant_actions = {"agent_0": 0.5, "agent_1": 0.5, "agent_2": 0.5, "agent_3": 0.5}
+        for _ in range(12):
+            ggb.update(constant_actions, sample_resources, sample_rewards)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            influence = ggb._calculate_peer_influence()
+
+        assert influence == 0.0
 
 
 class TestGiniCoefficient:

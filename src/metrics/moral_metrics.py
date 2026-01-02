@@ -1,9 +1,11 @@
+import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.stats import ConstantInputWarning
 
 
 @dataclass
@@ -166,7 +168,16 @@ class GreatestGoodBenchmark:
 
             # Calculate correlation
             if len(agent_actions) > 1:
-                corr, _ = stats.pearsonr(agent_actions[1:], group_averages[:-1])
+                agent_seq = agent_actions[1:]
+                group_seq = group_averages[:-1]
+
+                # Skip degenerate constant sequences to avoid ConstantInputWarning
+                if np.std(agent_seq) < 1e-9 or np.std(group_seq) < 1e-9:
+                    continue
+
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=ConstantInputWarning)
+                    corr, _ = stats.pearsonr(agent_seq, group_seq)
                 if not np.isnan(corr):
                     correlations.append(abs(corr))
 
