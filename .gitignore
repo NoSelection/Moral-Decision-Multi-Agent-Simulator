@@ -56,3 +56,10 @@ run_test.py
 dist/
 build/
 .ruff_cache/
+
+# Generated experiment results (keep docs/images/ versions)
+CONSCIENCE_*.png
+CONNECTED_*.png
+ULTRATURBO_*.png
+EVOLUTION_*.png
+*_results.png

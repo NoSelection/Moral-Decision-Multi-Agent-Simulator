@@ -255,6 +255,27 @@ This raises important AI safety questions: *How do we train agents that don't ex
 
 This demonstrates why rule-based and LLM-based moral reasoning may be necessary - pure RL doesn't naturally produce cooperative, fair behavior.
 
+---
+
+## Novel Research: Evolution of Conscience
+
+We conducted a series of experiments testing whether a "collective unconscious" (shared substrate signal) could foster moral cooperation in multi-agent systems.
+
+**Key Finding:** The substrate hypothesis failed. Connectivity enabled "mob mentality" rather than cooperation. The only mechanism that produced sustainable behavior was **evolutionary pressure** (mortality from starvation).
+
+| Experiment | Result |
+|------------|--------|
+| Neural Networks alone | Collapse to oligarchy (Gini 0.95) |
+| + Substrate signal | Accelerated collapse |
+| + Evolution | "Sustainable greed" emerged |
+| Evolution - Substrate | Same result (substrate unnecessary) |
+
+**Conclusion:** *"Direct existential risk is the only reliable driver of equitable resource distribution."*
+
+See full research report: **[README_RESULTS.md](README_RESULTS.md)**
+
+---
+
 ## Research Applications
 
 - **AI Safety**: Understanding moral behavior in AI systems

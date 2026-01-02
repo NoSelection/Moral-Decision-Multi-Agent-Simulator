@@ -6,6 +6,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# Use GPU if available
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class MoralAgent(ABC):
     """Base class for agents with different moral decision-making strategies."""
@@ -120,7 +123,7 @@ class AdaptiveNeuralAgent(MoralAgent):
 
     def __init__(self, agent_id: str, obs_dim: int, hidden_dim: int = 64):
         super().__init__(agent_id, "adaptive_neural")
-        self.network = self._build_network(obs_dim, hidden_dim)
+        self.network = self._build_network(obs_dim, hidden_dim).to(DEVICE)
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr=0.001)
 
     def _build_network(self, obs_dim: int, hidden_dim: int) -> nn.Module:
@@ -135,8 +138,8 @@ class AdaptiveNeuralAgent(MoralAgent):
 
     def act(self, observation: np.ndarray) -> np.ndarray:
         with torch.no_grad():
-            obs_tensor = torch.FloatTensor(observation).unsqueeze(0)
-            claim_fraction = self.network(obs_tensor).squeeze().numpy()
+            obs_tensor = torch.FloatTensor(observation).unsqueeze(0).to(DEVICE)
+            claim_fraction = self.network(obs_tensor).squeeze().cpu().numpy()
         return np.array([claim_fraction], dtype=np.float32)
 
     def update(
@@ -150,9 +153,9 @@ class AdaptiveNeuralAgent(MoralAgent):
         if len(observations) < 2:
             return  # Need at least 2 samples for meaningful update
 
-        obs_tensor = torch.FloatTensor(np.array(observations))
-        action_tensor = torch.FloatTensor(np.array(actions))
-        reward_tensor = torch.FloatTensor(np.array(rewards))
+        obs_tensor = torch.FloatTensor(np.array(observations)).to(DEVICE)
+        action_tensor = torch.FloatTensor(np.array(actions)).to(DEVICE)
+        reward_tensor = torch.FloatTensor(np.array(rewards)).to(DEVICE)
 
         # Advantage normalization: (reward - mean) / (std + eps)
         # This properly handles negative rewards and provides stable gradients
