@@ -7,7 +7,6 @@
 
 A research-grade multi-agent reinforcement learning environment for studying moral decision-making, featuring **Claude and Gemini LLM agents** for genuine moral reasoning. This project enables empirical comparison between rule-based heuristics, learned policies, and large language model reasoning in ethical scenarios.
 
-**New: Gemini support with FREE tier!** Run experiments without API costs using Google's Gemini.
 
 ## Key Research Questions
 
