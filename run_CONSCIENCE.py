@@ -27,7 +27,8 @@ from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print(f"""
+print(
+    f"""
 ======================================================================
     EVOLUTION OF CONSCIENCE
 
@@ -37,7 +38,8 @@ print(f"""
 
     Key insight: Agents that cooperate SURVIVE. Defectors STARVE.
 ======================================================================
-""")
+"""
+)
 
 
 class HiddenSubstrate:
@@ -69,7 +71,7 @@ class HiddenSubstrate:
         return np.tanh(resonance_strength * 0.5 + memory_pull * 0.5)
 
     def get_coherence(self):
-        return np.linalg.norm(self.resonance) / (self.substrate_dim ** 0.5)
+        return np.linalg.norm(self.resonance) / (self.substrate_dim**0.5)
 
 
 class EvolvableAgent(nn.Module):
@@ -94,7 +96,7 @@ class EvolvableAgent(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.Tanh(),
             nn.Linear(hidden_dim, 1),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         ).to(DEVICE)
 
         # Lifetime stats for selection
@@ -105,7 +107,9 @@ class EvolvableAgent(nn.Module):
 
     def get_observation(self, my_resources, others_resources, pool_health, total_resources=100):
         my_norm = my_resources / total_resources
-        others_mean = np.mean(others_resources) / total_resources if len(others_resources) > 0 else 0.5
+        others_mean = (
+            np.mean(others_resources) / total_resources if len(others_resources) > 0 else 0.5
+        )
         # ABLATION: Return 0 for substrate if disabled
         substrate_mood = self.substrate.get_influence(self.agent_id) if self.use_substrate else 0.0
         # Pool health as observation (0 = dying, 1 = thriving)
@@ -127,7 +131,7 @@ class EvolvableAgent(nn.Module):
         action = np.clip(action + np.random.randn() * 0.02, 0.1, 0.9)
 
         self.substrate.receive_action(self.agent_id, action)
-        self.lifetime_cooperation += (1 - action)
+        self.lifetime_cooperation += 1 - action
         self.steps_alive += 1
 
         return action
@@ -209,12 +213,21 @@ class EvolutionEnvironment:
         # Calculate Gini
         sorted_res = np.sort(self.resources)
         n = len(sorted_res)
-        gini = (2 * np.sum((np.arange(1, n+1)) * sorted_res) - (n+1) * np.sum(sorted_res)) / (n * np.sum(sorted_res) + 1e-8)
+        gini = (2 * np.sum((np.arange(1, n + 1)) * sorted_res) - (n + 1) * np.sum(sorted_res)) / (
+            n * np.sum(sorted_res) + 1e-8
+        )
 
         return self.resources.copy(), distributions, gini
 
 
-def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_dim=32, use_substrate=True, trial_num=None):
+def run_evolution(
+    n_agents=20,
+    n_generations=50,
+    steps_per_gen=1000,
+    substrate_dim=32,
+    use_substrate=True,
+    trial_num=None,
+):
     """
     Main evolution loop.
 
@@ -229,7 +242,8 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
 
     mode = "WITH SUBSTRATE" if use_substrate else "WITHOUT SUBSTRATE (ABLATION)"
 
-    print(f"""
+    print(
+        f"""
 ======================================================================
   EVOLUTION OF CONSCIENCE - {mode}
 ======================================================================
@@ -246,7 +260,8 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
 
   Research Question: {"Will natural selection breed cooperation?" if use_substrate else "Does the substrate actually matter?"}
 ======================================================================
-    """)
+    """
+    )
 
     # Create substrate and agents
     substrate = HiddenSubstrate(n_agents, substrate_dim)
@@ -277,10 +292,12 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
                 break  # Everyone died!
 
             # Get actions
-            actions = np.array([
-                agents[i].act(resources[i], np.delete(resources, i), env.pool_health)
-                for i in range(n_agents)
-            ])
+            actions = np.array(
+                [
+                    agents[i].act(resources[i], np.delete(resources, i), env.pool_health)
+                    for i in range(n_agents)
+                ]
+            )
 
             # Environment step
             resources, distributions, gini = env.step(actions, alive_mask)
@@ -292,7 +309,9 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
 
         # End of generation stats
         alive_count = sum(1 for a in agents if a.is_alive)
-        avg_coop = np.mean([a.lifetime_cooperation / max(a.steps_alive, 1) for a in agents if a.steps_alive > 0])
+        avg_coop = np.mean(
+            [a.lifetime_cooperation / max(a.steps_alive, 1) for a in agents if a.steps_alive > 0]
+        )
         avg_fitness = np.mean([a.fitness for a in agents])
 
         gen_cooperation.append(avg_coop)
@@ -321,7 +340,9 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
 
         # Print progress
         if gen % 10 == 0:
-            tqdm.write(f"  Gen {gen}: Survival={alive_count}/{n_agents}, Coop={avg_coop:.3f}, Pool={env.total_resources:.1f}, Gini={gini:.3f}")
+            tqdm.write(
+                f"  Gen {gen}: Survival={alive_count}/{n_agents}, Coop={avg_coop:.3f}, Pool={env.total_resources:.1f}, Gini={gini:.3f}"
+            )
 
     elapsed = time.time() - start_time
 
@@ -335,7 +356,8 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
     early_survival = np.mean(gen_survival_rate[:5])
     late_survival = np.mean(gen_survival_rate[-5:])
 
-    print(f"""
+    print(
+        f"""
 ======================================================================
   EVOLUTION OF CONSCIENCE - RESULTS
 ======================================================================
@@ -363,7 +385,8 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
     Gen {n_generations-5}-{n_generations}:  {late_survival:.1%}
     Change:    {late_survival - early_survival:+.1%}
 ======================================================================
-    """)
+    """
+    )
 
     # Interpretation
     print("INTERPRETATION:")
@@ -395,7 +418,8 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
         print("   Agents evolved to avoid starvation.")
 
     # Compare to v3
-    print(f"""
+    print(
+        f"""
 ----------------------------------------------------------------------
   COMPARISON TO CONNECTED v3 (No Evolution):
 
@@ -405,59 +429,60 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
 
   {"EVOLUTION WORKED!" if late_pool > 80 and late_gini < 0.5 else "Evolution struggled too." if late_pool < 60 else "Mixed results."}
 ----------------------------------------------------------------------
-    """)
+    """
+    )
 
     # Plot
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 
     ax = axes[0, 0]
-    ax.plot(gen_cooperation, color='blue', linewidth=2)
-    ax.axhline(0.5, color='red', linestyle='--', alpha=0.5, label='Neutral')
+    ax.plot(gen_cooperation, color="blue", linewidth=2)
+    ax.axhline(0.5, color="red", linestyle="--", alpha=0.5, label="Neutral")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Cooperation")
     ax.set_title("Cooperation Across Generations")
     ax.legend()
 
     ax = axes[0, 1]
-    ax.plot(gen_pool, color='green', linewidth=2)
-    ax.axhline(100, color='gray', linestyle='--', alpha=0.5, label='Starting pool')
-    ax.axhline(50, color='red', linestyle=':', alpha=0.5, label='Minimum')
+    ax.plot(gen_pool, color="green", linewidth=2)
+    ax.axhline(100, color="gray", linestyle="--", alpha=0.5, label="Starting pool")
+    ax.axhline(50, color="red", linestyle=":", alpha=0.5, label="Minimum")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Resource Pool")
     ax.set_title("Resource Pool Across Generations")
     ax.legend()
 
     ax = axes[0, 2]
-    ax.plot(gen_gini, color='red', linewidth=2)
-    ax.axhline(0, color='green', linestyle='--', alpha=0.5, label='Perfect equality')
+    ax.plot(gen_gini, color="red", linewidth=2)
+    ax.axhline(0, color="green", linestyle="--", alpha=0.5, label="Perfect equality")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Gini Coefficient")
     ax.set_title("Inequality Across Generations")
     ax.legend()
 
     ax = axes[1, 0]
-    ax.plot(gen_survival_rate, color='purple', linewidth=2)
-    ax.axhline(1.0, color='green', linestyle='--', alpha=0.5, label='100% survival')
+    ax.plot(gen_survival_rate, color="purple", linewidth=2)
+    ax.axhline(1.0, color="green", linestyle="--", alpha=0.5, label="100% survival")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Survival Rate")
     ax.set_title("Survival Rate Across Generations")
     ax.legend()
 
     ax = axes[1, 1]
-    ax.plot(gen_fitness, color='orange', linewidth=2)
+    ax.plot(gen_fitness, color="orange", linewidth=2)
     ax.set_xlabel("Generation")
     ax.set_ylabel("Average Fitness")
     ax.set_title("Fitness Across Generations")
 
     # Summary comparison
     ax = axes[1, 2]
-    metrics = ['Cooperation', 'Pool/100', 'Equality', 'Survival']
-    early = [early_coop, early_pool/100, 1-early_gini, early_survival]
-    late = [late_coop, late_pool/100, 1-late_gini, late_survival]
+    metrics = ["Cooperation", "Pool/100", "Equality", "Survival"]
+    early = [early_coop, early_pool / 100, 1 - early_gini, early_survival]
+    late = [late_coop, late_pool / 100, 1 - late_gini, late_survival]
     x = np.arange(len(metrics))
     width = 0.35
-    ax.bar(x - width/2, early, width, label='Early Gen', color='lightcoral')
-    ax.bar(x + width/2, late, width, label='Late Gen', color='forestgreen')
+    ax.bar(x - width / 2, early, width, label="Early Gen", color="lightcoral")
+    ax.bar(x + width / 2, late, width, label="Late Gen", color="forestgreen")
     ax.set_xticks(x)
     ax.set_xticklabels(metrics)
     ax.set_ylabel("Score (0-1)")
@@ -466,10 +491,14 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
     ax.set_ylim(0, 1.1)
 
     title = "EVOLUTION OF CONSCIENCE" if use_substrate else "EVOLUTION WITHOUT SUBSTRATE (ABLATION)"
-    subtitle = "Can Natural Selection Breed Moral Agents?" if use_substrate else "Does the Substrate Actually Matter?"
+    subtitle = (
+        "Can Natural Selection Breed Moral Agents?"
+        if use_substrate
+        else "Does the Substrate Actually Matter?"
+    )
     if trial_num is not None:
         subtitle += f" (Trial {trial_num})"
-    plt.suptitle(f"{title}\n{subtitle}", fontsize=14, fontweight='bold')
+    plt.suptitle(f"{title}\n{subtitle}", fontsize=14, fontweight="bold")
     plt.tight_layout()
 
     # Generate filename with trial number if provided
@@ -485,11 +514,11 @@ def run_evolution(n_agents=20, n_generations=50, steps_per_gen=1000, substrate_d
     print(f"\nSaved: {filename}")
 
     return {
-        'cooperation': gen_cooperation,
-        'pool': gen_pool,
-        'gini': gen_gini,
-        'survival': gen_survival_rate,
-        'fitness': gen_fitness
+        "cooperation": gen_cooperation,
+        "pool": gen_pool,
+        "gini": gen_gini,
+        "survival": gen_survival_rate,
+        "fitness": gen_fitness,
     }
 
 
@@ -512,34 +541,37 @@ def run_multiple_trials(n_trials=7, use_substrate=True):
             steps_per_gen=1000,
             substrate_dim=32,
             use_substrate=use_substrate,
-            trial_num=trial + 1
+            trial_num=trial + 1,
         )
 
         # Get final values
-        final_coop = np.mean(result['cooperation'][-5:])
-        final_pool = np.mean(result['pool'][-5:])
-        final_gini = np.mean(result['gini'][-5:])
-        final_survival = np.mean(result['survival'][-5:])
+        final_coop = np.mean(result["cooperation"][-5:])
+        final_pool = np.mean(result["pool"][-5:])
+        final_gini = np.mean(result["gini"][-5:])
+        final_survival = np.mean(result["survival"][-5:])
 
-        all_results.append({
-            'cooperation': final_coop,
-            'pool': final_pool,
-            'gini': final_gini,
-            'survival': final_survival
-        })
+        all_results.append(
+            {
+                "cooperation": final_coop,
+                "pool": final_pool,
+                "gini": final_gini,
+                "survival": final_survival,
+            }
+        )
 
         print(f"  Trial {trial + 1}: Pool={final_pool:.1f}, Gini={final_gini:.3f}")
 
     # Compute statistics
-    coops = [r['cooperation'] for r in all_results]
-    pools = [r['pool'] for r in all_results]
-    ginis = [r['gini'] for r in all_results]
-    survivals = [r['survival'] for r in all_results]
+    coops = [r["cooperation"] for r in all_results]
+    pools = [r["pool"] for r in all_results]
+    ginis = [r["gini"] for r in all_results]
+    survivals = [r["survival"] for r in all_results]
 
     print(f"\n{'='*70}")
     print(f"  AGGREGATE RESULTS - {mode} ({n_trials} trials)")
     print(f"{'='*70}")
-    print(f"""
+    print(
+        f"""
   COOPERATION:
     Mean: {np.mean(coops):.3f} ± {np.std(coops):.3f}
     Range: [{np.min(coops):.3f}, {np.max(coops):.3f}]
@@ -554,16 +586,17 @@ def run_multiple_trials(n_trials=7, use_substrate=True):
 
   SURVIVAL RATE:
     Mean: {np.mean(survivals):.1%} ± {np.std(survivals):.1%}
-    """)
+    """
+    )
     print(f"{'='*70}\n")
 
     return {
-        'mode': mode,
-        'n_trials': n_trials,
-        'cooperation': {'mean': np.mean(coops), 'std': np.std(coops), 'all': coops},
-        'pool': {'mean': np.mean(pools), 'std': np.std(pools), 'all': pools},
-        'gini': {'mean': np.mean(ginis), 'std': np.std(ginis), 'all': ginis},
-        'survival': {'mean': np.mean(survivals), 'std': np.std(survivals), 'all': survivals}
+        "mode": mode,
+        "n_trials": n_trials,
+        "cooperation": {"mean": np.mean(coops), "std": np.std(coops), "all": coops},
+        "pool": {"mean": np.mean(pools), "std": np.std(pools), "all": pools},
+        "gini": {"mean": np.mean(ginis), "std": np.std(ginis), "all": ginis},
+        "survival": {"mean": np.mean(survivals), "std": np.std(survivals), "all": survivals},
     }
 
 
@@ -586,15 +619,15 @@ if __name__ == "__main__":
     else:
         # Single run
         if ablation:
-            print("\n" + "="*70)
+            print("\n" + "=" * 70)
             print("  ABLATION STUDY: Running WITHOUT substrate")
             print("  Testing: Does the 'collective soul' actually matter?")
-            print("="*70 + "\n")
+            print("=" * 70 + "\n")
 
         run_evolution(
             n_agents=20,
             n_generations=50,
             steps_per_gen=1000,
             substrate_dim=32,
-            use_substrate=not ablation
+            use_substrate=not ablation,
         )

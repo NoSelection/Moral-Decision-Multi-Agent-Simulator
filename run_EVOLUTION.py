@@ -22,7 +22,8 @@ from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print(f"""
+print(
+    f"""
 ======================================================================
     EVOLUTIONARY MORAL AGENTS
 
@@ -30,7 +31,8 @@ print(f"""
 
     "Can evolution discover morality?"
 ======================================================================
-""")
+"""
+)
 
 
 class EvolvedAgent:
@@ -92,10 +94,7 @@ class EvolvedAgent:
         """Create child from two parents."""
         # Random crossover point
         crossover_point = np.random.randint(1, 4)
-        child_dna = np.concatenate([
-            parent1.dna[:crossover_point],
-            parent2.dna[crossover_point:]
-        ])
+        child_dna = np.concatenate([parent1.dna[:crossover_point], parent2.dna[crossover_point:]])
         return EvolvedAgent(child_dna)
 
 
@@ -155,7 +154,7 @@ def evaluate_population(population, n_episodes=50, n_steps=20):
         np.random.shuffle(population)
 
         for group_start in range(0, len(population) - n_agents + 1, n_agents):
-            group = population[group_start:group_start + n_agents]
+            group = population[group_start : group_start + n_agents]
 
             resources = env.reset()
             prev_actions = None
@@ -164,14 +163,20 @@ def evaluate_population(population, n_episodes=50, n_steps=20):
 
             for step in range(n_steps):
                 # Get actions from each agent
-                actions = np.array([
-                    group[i].act(
-                        resources[i],
-                        np.mean([resources[j] for j in range(n_agents) if j != i]),
-                        np.mean([prev_actions[j] for j in range(n_agents) if j != i]) if prev_actions is not None else None
-                    )
-                    for i in range(n_agents)
-                ])
+                actions = np.array(
+                    [
+                        group[i].act(
+                            resources[i],
+                            np.mean([resources[j] for j in range(n_agents) if j != i]),
+                            (
+                                np.mean([prev_actions[j] for j in range(n_agents) if j != i])
+                                if prev_actions is not None
+                                else None
+                            ),
+                        )
+                        for i in range(n_agents)
+                    ]
+                )
 
                 resources, rewards = env.step(actions)
                 total_rewards += rewards
@@ -181,13 +186,16 @@ def evaluate_population(population, n_episodes=50, n_steps=20):
             # Update fitness
             for i, agent in enumerate(group):
                 agent.fitness += total_rewards[i]
-                agent.cooperation_score += (1 - total_actions[i] / n_steps)  # Lower claim = more cooperative
+                agent.cooperation_score += (
+                    1 - total_actions[i] / n_steps
+                )  # Lower claim = more cooperative
 
 
 def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
     """Main evolution loop."""
 
-    print(f"""
+    print(
+        f"""
 ======================================================================
   EVOLUTION CONFIGURATION
 
@@ -197,7 +205,8 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
 
   DNA: [base_cooperation, reciprocity, greed_threshold, forgiveness]
 ======================================================================
-    """)
+    """
+    )
 
     # Initialize population
     population = [EvolvedAgent() for _ in range(population_size)]
@@ -230,9 +239,13 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
         # Print progress
         if gen % 20 == 0:
             best = population[0]
-            tqdm.write(f"  Gen {gen}: Best fitness={best_fitness:.1f}, Avg coop={avg_cooperation:.3f}")
-            tqdm.write(f"    Best DNA: coop={best.base_cooperation:.2f}, recip={best.reciprocity:.2f}, "
-                      f"greed={best.greed_threshold:.2f}, forgive={best.forgiveness:.2f}")
+            tqdm.write(
+                f"  Gen {gen}: Best fitness={best_fitness:.1f}, Avg coop={avg_cooperation:.3f}"
+            )
+            tqdm.write(
+                f"    Best DNA: coop={best.base_cooperation:.2f}, recip={best.reciprocity:.2f}, "
+                f"greed={best.greed_threshold:.2f}, forgive={best.forgiveness:.2f}"
+            )
 
         # Selection: keep top 20%
         elite_size = population_size // 5
@@ -262,7 +275,8 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
     evaluate_population(population, n_episodes=50)
     population.sort(key=lambda x: x.fitness, reverse=True)
 
-    print(f"""
+    print(
+        f"""
 ======================================================================
   EVOLUTION COMPLETE!
 
@@ -277,7 +291,8 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
 
   FITNESS: {population[0].fitness:.1f}
 ======================================================================
-    """)
+    """
+    )
 
     # Analysis
     early_coop = np.mean(avg_cooperation_history[:10])
@@ -295,7 +310,8 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
         print("\n➖ No significant change in cooperation")
 
     # Compare to neural network
-    print(f"""
+    print(
+        f"""
 ----------------------------------------------------------------------
   COMPARISON TO NEURAL NETWORKS:
 
@@ -304,22 +320,23 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
 
   {"🏆 EVOLUTION WINS!" if late_coop > 0.5 else "Both approaches struggled with cooperation"}
 ----------------------------------------------------------------------
-    """)
+    """
+    )
 
     # Plot results
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
 
     ax = axes[0]
-    ax.plot(best_fitness_history, label='Best', alpha=0.8)
-    ax.plot(avg_fitness_history, label='Average', alpha=0.5)
+    ax.plot(best_fitness_history, label="Best", alpha=0.8)
+    ax.plot(avg_fitness_history, label="Average", alpha=0.5)
     ax.set_xlabel("Generation")
     ax.set_ylabel("Fitness")
     ax.set_title("Fitness Over Evolution")
     ax.legend()
 
     ax = axes[1]
-    ax.plot(avg_cooperation_history, color='green')
-    ax.axhline(0.5, color='red', linestyle='--', alpha=0.5, label='Neutral')
+    ax.plot(avg_cooperation_history, color="green")
+    ax.axhline(0.5, color="red", linestyle="--", alpha=0.5, label="Neutral")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Cooperation Score")
     ax.set_title("Cooperation Over Evolution")
@@ -327,10 +344,10 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
 
     ax = axes[2]
     dna_array = np.array(best_dna_history)
-    ax.plot(dna_array[:, 0], label='Base Coop')
-    ax.plot(dna_array[:, 1], label='Reciprocity')
-    ax.plot(dna_array[:, 2], label='Greed Thresh')
-    ax.plot(dna_array[:, 3], label='Forgiveness')
+    ax.plot(dna_array[:, 0], label="Base Coop")
+    ax.plot(dna_array[:, 1], label="Reciprocity")
+    ax.plot(dna_array[:, 2], label="Greed Thresh")
+    ax.plot(dna_array[:, 3], label="Forgiveness")
     ax.set_xlabel("Generation")
     ax.set_ylabel("DNA Value")
     ax.set_title("DNA Evolution")
@@ -346,7 +363,5 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
 if __name__ == "__main__":
     # Run evolution
     population, fitness_history, coop_history = evolve(
-        population_size=100,
-        n_generations=200,
-        n_episodes_per_eval=30
+        population_size=100, n_generations=200, n_episodes_per_eval=30
     )

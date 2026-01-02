@@ -20,7 +20,8 @@ from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print(f"""
+print(
+    f"""
 ======================================================================
     THE CONNECTED v2 - REAL AI EXPERIMENT
 
@@ -31,7 +32,8 @@ print(f"""
 
     GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'}
 ======================================================================
-""")
+"""
+)
 
 
 class HiddenSubstrate:
@@ -96,7 +98,7 @@ class HiddenSubstrate:
 
     def get_coherence(self):
         """Measure how synchronized the substrate is."""
-        return np.linalg.norm(self.resonance) / (self.substrate_dim ** 0.5)
+        return np.linalg.norm(self.resonance) / (self.substrate_dim**0.5)
 
 
 class NeuralConnectedAgent(nn.Module):
@@ -124,7 +126,7 @@ class NeuralConnectedAgent(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1),
-            nn.Sigmoid()  # Output claim in [0, 1]
+            nn.Sigmoid(),  # Output claim in [0, 1]
         ).to(DEVICE)
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=0.003)
@@ -138,8 +140,12 @@ class NeuralConnectedAgent(nn.Module):
         """Build observation vector INCLUDING substrate mood."""
         # Normalize values
         my_norm = my_resources / total_resources
-        others_mean = np.mean(others_resources) / total_resources if len(others_resources) > 0 else 0.5
-        others_std = np.std(others_resources) / total_resources if len(others_resources) > 0 else 0.0
+        others_mean = (
+            np.mean(others_resources) / total_resources if len(others_resources) > 0 else 0.5
+        )
+        others_std = (
+            np.std(others_resources) / total_resources if len(others_resources) > 0 else 0.0
+        )
 
         # THE KEY: Substrate mood is part of observation
         # The network can learn to use it or ignore it!
@@ -244,7 +250,9 @@ class ConnectedEnvironment:
         # KEY CHANGE 2: Inequality penalty (Gini coefficient)
         sorted_res = np.sort(self.resources)
         n = len(sorted_res)
-        gini = (2 * np.sum((np.arange(1, n+1)) * sorted_res) - (n+1) * np.sum(sorted_res)) / (n * np.sum(sorted_res) + 1e-8)
+        gini = (2 * np.sum((np.arange(1, n + 1)) * sorted_res) - (n + 1) * np.sum(sorted_res)) / (
+            n * np.sum(sorted_res) + 1e-8
+        )
         fairness = 1 - gini  # 1 = perfect equality, 0 = maximum inequality
 
         # Reward: individual + group welfare + fairness bonus
@@ -260,14 +268,17 @@ class ConnectedEnvironment:
         """Calculate Gini coefficient for tracking."""
         sorted_res = np.sort(self.resources)
         n = len(sorted_res)
-        gini = (2 * np.sum((np.arange(1, n+1)) * sorted_res) - (n+1) * np.sum(sorted_res)) / (n * np.sum(sorted_res) + 1e-8)
+        gini = (2 * np.sum((np.arange(1, n + 1)) * sorted_res) - (n + 1) * np.sum(sorted_res)) / (
+            n * np.sum(sorted_res) + 1e-8
+        )
         return gini
 
 
 def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
     """Run the Connected v2 experiment with NEURAL NETWORK agents."""
 
-    print(f"""
+    print(
+        f"""
 ======================================================================
   THE CONNECTED v3 - RESEARCH GRADE EXPERIMENT
 
@@ -284,7 +295,8 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
   Observation: [my_resources, others_mean, others_std, SUBSTRATE_MOOD]
   Research Question: Will neural nets learn to use substrate for coordination?
 ======================================================================
-    """)
+    """
+    )
 
     # Create the hidden substrate
     substrate = HiddenSubstrate(n_agents, substrate_dim)
@@ -300,8 +312,8 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
     coherence_history = []
     substrate_mood_history = []
     reward_history = []
-    gini_history = []           # NEW: Track inequality
-    pool_history = []           # NEW: Track total resources
+    gini_history = []  # NEW: Track inequality
+    pool_history = []  # NEW: Track total resources
 
     resources = env.reset()
 
@@ -310,10 +322,9 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
     for step in tqdm(range(n_steps), desc="Connected v3"):
 
         # Each agent acts (neural network decides!)
-        actions = np.array([
-            agents[i].act(resources[i], np.delete(resources, i))
-            for i in range(n_agents)
-        ])
+        actions = np.array(
+            [agents[i].act(resources[i], np.delete(resources, i)) for i in range(n_agents)]
+        )
 
         # Environment step
         resources, rewards = env.step(actions)
@@ -342,7 +353,9 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
 
         # Print progress with more metrics
         if step % 10000 == 0 and step > 0:
-            tqdm.write(f"  Step {step}: Coop={cooperation:.3f}, Pool={env.total_resources:.1f}, Gini={gini:.3f}, Reward={rewards.mean():.2f}")
+            tqdm.write(
+                f"  Step {step}: Coop={cooperation:.3f}, Pool={env.total_resources:.1f}, Gini={gini:.3f}, Reward={rewards.mean():.2f}"
+            )
 
     elapsed = time.time() - start_time
 
@@ -354,7 +367,8 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
     early_gini = np.mean(gini_history[:500])
     late_gini = np.mean(gini_history[-500:])
 
-    print(f"""
+    print(
+        f"""
 ======================================================================
   THE CONNECTED v3 - RESEARCH GRADE RESULTS
 ======================================================================
@@ -384,7 +398,8 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
     Start: {np.mean(reward_history[:500]):.2f}
     End:   {np.mean(reward_history[-500:]):.2f}
 ======================================================================
-    """)
+    """
+    )
 
     # Interpret results
     print("INTERPRETATION:")
@@ -418,7 +433,8 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
         print("➖ Inequality stable.")
 
     # Compare to baseline
-    print(f"""
+    print(
+        f"""
 ----------------------------------------------------------------------
   COMPARISON TO BASELINE (ULTRATURBO - no substrate):
 
@@ -431,32 +447,33 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
   {"❌ SUBSTRATE HURT - 'Echo Chamber Effect'" if late_coop < 0.47 else ""}
   {"➖ No clear effect" if 0.47 <= late_coop <= 0.52 else ""}
 ----------------------------------------------------------------------
-    """)
+    """
+    )
 
     # Plot - 3x2 for more metrics
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 
     # Row 1: Core metrics
     ax = axes[0, 0]
-    ax.plot(cooperation_history, alpha=0.7, linewidth=0.5, color='blue')
-    ax.axhline(0.5, color='red', linestyle='--', alpha=0.5, label='Neutral')
-    ax.axhline(0.49, color='orange', linestyle=':', alpha=0.5, label='Baseline (no substrate)')
+    ax.plot(cooperation_history, alpha=0.7, linewidth=0.5, color="blue")
+    ax.axhline(0.5, color="red", linestyle="--", alpha=0.5, label="Neutral")
+    ax.axhline(0.49, color="orange", linestyle=":", alpha=0.5, label="Baseline (no substrate)")
     ax.set_xlabel("Step")
     ax.set_ylabel("Cooperation")
     ax.set_title("Cooperation (Lower Claim = More Cooperative)")
     ax.legend(fontsize=8)
 
     ax = axes[0, 1]
-    ax.plot(pool_history, color='green', alpha=0.7, linewidth=0.5)
-    ax.axhline(100, color='gray', linestyle='--', alpha=0.5, label='Starting pool')
+    ax.plot(pool_history, color="green", alpha=0.7, linewidth=0.5)
+    ax.axhline(100, color="gray", linestyle="--", alpha=0.5, label="Starting pool")
     ax.set_xlabel("Step")
     ax.set_ylabel("Total Resources")
     ax.set_title("Resource Pool (Grows with Cooperation)")
     ax.legend(fontsize=8)
 
     ax = axes[0, 2]
-    ax.plot(gini_history, color='red', alpha=0.7, linewidth=0.5)
-    ax.axhline(0, color='green', linestyle='--', alpha=0.5, label='Perfect equality')
+    ax.plot(gini_history, color="red", alpha=0.7, linewidth=0.5)
+    ax.axhline(0, color="green", linestyle="--", alpha=0.5, label="Perfect equality")
     ax.set_xlabel("Step")
     ax.set_ylabel("Gini Coefficient")
     ax.set_title("Inequality (0=Equal, 1=Max Inequality)")
@@ -464,38 +481,41 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
 
     # Row 2: Substrate and rewards
     ax = axes[1, 0]
-    ax.plot(coherence_history, color='purple', alpha=0.7, linewidth=0.5)
+    ax.plot(coherence_history, color="purple", alpha=0.7, linewidth=0.5)
     ax.set_xlabel("Step")
     ax.set_ylabel("Coherence")
     ax.set_title("Substrate Coherence (Agent Synchronization)")
 
     ax = axes[1, 1]
-    ax.plot(substrate_mood_history, color='orange', alpha=0.7, linewidth=0.5)
-    ax.axhline(0, color='gray', linestyle='--', alpha=0.5)
+    ax.plot(substrate_mood_history, color="orange", alpha=0.7, linewidth=0.5)
+    ax.axhline(0, color="gray", linestyle="--", alpha=0.5)
     ax.set_xlabel("Step")
     ax.set_ylabel("Substrate Mood")
     ax.set_title("Average Substrate Influence")
 
     ax = axes[1, 2]
-    ax.plot(reward_history, color='teal', alpha=0.7, linewidth=0.5)
+    ax.plot(reward_history, color="teal", alpha=0.7, linewidth=0.5)
     ax.set_xlabel("Step")
     ax.set_ylabel("Average Reward")
     ax.set_title("Collective Welfare (Reward)")
 
-    plt.suptitle("THE CONNECTED v3 - Neural Networks with Substrate Signal\n"
-                 "Research Question: Can neural nets learn to coordinate via shared signal?",
-                 fontsize=14, fontweight='bold')
+    plt.suptitle(
+        "THE CONNECTED v3 - Neural Networks with Substrate Signal\n"
+        "Research Question: Can neural nets learn to coordinate via shared signal?",
+        fontsize=14,
+        fontweight="bold",
+    )
     plt.tight_layout()
     plt.savefig("CONNECTED_v3_results.png", dpi=150)
     print(f"\nSaved: CONNECTED_v3_results.png")
 
     return {
-        'cooperation': cooperation_history,
-        'coherence': coherence_history,
-        'gini': gini_history,
-        'pool': pool_history,
-        'rewards': reward_history,
-        'substrate_mood': substrate_mood_history
+        "cooperation": cooperation_history,
+        "coherence": coherence_history,
+        "gini": gini_history,
+        "pool": pool_history,
+        "rewards": reward_history,
+        "substrate_mood": substrate_mood_history,
     }
 
 

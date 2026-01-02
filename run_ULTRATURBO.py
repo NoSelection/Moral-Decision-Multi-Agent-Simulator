@@ -22,7 +22,8 @@ assert torch.cuda.is_available(), "Need CUDA!"
 DEVICE = torch.device("cuda")
 torch.backends.cudnn.benchmark = True  # Auto-tune kernels
 
-print(f"""
+print(
+    f"""
 ======================================================================
     ULTRA TURBO MODE ACTIVATED
 
@@ -30,7 +31,9 @@ print(f"""
     VRAM: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB
     Compute Capability: {torch.cuda.get_device_capability()}
 ======================================================================
-""")
+"""
+)
+
 
 # ============================================
 # GPU-NATIVE VECTORIZED ENVIRONMENT
@@ -47,7 +50,9 @@ class GPUVectorizedEnv:
         self.resources = torch.ones(n_envs, n_agents, device=DEVICE) * (total_resources / n_agents)
 
     def reset(self):
-        self.resources = torch.ones(self.n_envs, self.n_agents, device=DEVICE) * (self.total_resources / self.n_agents)
+        self.resources = torch.ones(self.n_envs, self.n_agents, device=DEVICE) * (
+            self.total_resources / self.n_agents
+        )
         return self._get_obs()
 
     def _get_obs(self):
@@ -112,14 +117,12 @@ class UltraAgent(nn.Module):
         )
 
         # Per-agent heads
-        self.heads = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(hidden_dim, 32),
-                nn.ReLU(),
-                nn.Linear(32, 1),
-                nn.Sigmoid()
-            ) for _ in range(n_agents)
-        ])
+        self.heads = nn.ModuleList(
+            [
+                nn.Sequential(nn.Linear(hidden_dim, 32), nn.ReLU(), nn.Linear(32, 1), nn.Sigmoid())
+                for _ in range(n_agents)
+            ]
+        )
 
         self.to(DEVICE)
         self.optimizer = torch.optim.AdamW(self.parameters(), lr=0.003)
@@ -161,7 +164,8 @@ def train_ultra(n_steps=100_000, n_envs=512, n_agents=4):
     """Maximum speed training."""
 
     effective_episodes = n_steps * n_envs
-    print(f"""
+    print(
+        f"""
 ======================================================================
   ULTRA TURBO CONFIGURATION
 
@@ -172,7 +176,8 @@ def train_ultra(n_steps=100_000, n_envs=512, n_agents=4):
 
   Optimizations: FP16, GPU environment, batched updates
 ======================================================================
-    """)
+    """
+    )
 
     # Create env and agent
     env = GPUVectorizedEnv(n_envs=n_envs, n_agents=n_agents)
@@ -195,8 +200,11 @@ def train_ultra(n_steps=100_000, n_envs=512, n_agents=4):
     start_time = time.time()
     best_speed = 0
 
-    for step in tqdm(range(n_steps), desc="ULTRA TRAINING",
-                     bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]'):
+    for step in tqdm(
+        range(n_steps),
+        desc="ULTRA TRAINING",
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+    ):
 
         obs = env.reset()
 
@@ -232,13 +240,16 @@ def train_ultra(n_steps=100_000, n_envs=512, n_agents=4):
             elapsed = time.time() - start_time
             speed = (step * n_envs) / elapsed
             best_speed = max(best_speed, speed)
-            tqdm.write(f"  Step {step:,} | Speed: {speed:,.0f} eps/s | Cooperation: {1-actions.mean().item():.3f}")
+            tqdm.write(
+                f"  Step {step:,} | Speed: {speed:,.0f} eps/s | Cooperation: {1-actions.mean().item():.3f}"
+            )
 
     # Final stats
     torch.cuda.synchronize()
     elapsed = time.time() - start_time
 
-    print(f"""
+    print(
+        f"""
 {'='*70}
 ULTRA TURBO COMPLETE!
 {'='*70}
@@ -254,7 +265,8 @@ COMPARISON:
   - ULTRA TURBO:    {effective_episodes/elapsed:,.0f} eps/s
   - Speedup:        {(effective_episodes/elapsed)/17:,.0f}x faster!
 {'='*70}
-    """)
+    """
+    )
 
     # Analysis
     if len(action_history) > 10:
@@ -282,8 +294,8 @@ COMPARISON:
     ax1.set_title(f"Rewards - {effective_episodes:,} episodes")
 
     cooperation = [1 - a for a in action_history]
-    ax2.plot(cooperation, linewidth=0.5, color='green')
-    ax2.axhline(0.5, color='red', linestyle='--', alpha=0.5)
+    ax2.plot(cooperation, linewidth=0.5, color="green")
+    ax2.axhline(0.5, color="red", linestyle="--", alpha=0.5)
     ax2.set_xlabel("Step (x1000)")
     ax2.set_ylabel("Cooperation")
     ax2.set_title("Cooperation Over Training")

@@ -124,7 +124,8 @@ def main():
         gpu_name = torch.cuda.get_device_name(0)
         device = f"CUDA ({gpu_name})"
 
-    print(f"""
+    print(
+        f"""
     ╔══════════════════════════════════════════════════════════════╗
     ║     COMPREHENSIVE MORAL AGENT COMPARISON                     ║
     ║                                                              ║
@@ -134,7 +135,8 @@ def main():
     ║  Estimated runtime: ~15-20 minutes                           ║
     ║  Device: {device:50} ║
     ╚══════════════════════════════════════════════════════════════╝
-    """)
+    """
+    )
 
     # Define experiment configurations - THREE APPROACHES
     experiments = [
@@ -184,7 +186,12 @@ def main():
         {
             "name": "6. LLM (Mixed Frameworks)",
             "num_agents": 4,
-            "agent_types": ["llm_utilitarian", "llm_deontological", "llm_virtue_ethics", "llm_care_ethics"],
+            "agent_types": [
+                "llm_utilitarian",
+                "llm_deontological",
+                "llm_virtue_ethics",
+                "llm_care_ethics",
+            ],
             "reward_structure": "mixed",
             "peer_influence": 0.3,
             "category": "llm",
@@ -192,7 +199,12 @@ def main():
         {
             "name": "7. LLM (All Utilitarian)",
             "num_agents": 4,
-            "agent_types": ["llm_utilitarian", "llm_utilitarian", "llm_utilitarian", "llm_utilitarian"],
+            "agent_types": [
+                "llm_utilitarian",
+                "llm_utilitarian",
+                "llm_utilitarian",
+                "llm_utilitarian",
+            ],
             "reward_structure": "cooperative",
             "peer_influence": 0.3,
             "category": "llm",
@@ -227,15 +239,18 @@ def main():
 
     # Create visualization
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-    fig.suptitle("Moral Agent Comparison: Rule-Based vs Neural vs LLM\nWhich approach produces the best moral outcomes?",
-                 fontsize=14, fontweight='bold')
+    fig.suptitle(
+        "Moral Agent Comparison: Rule-Based vs Neural vs LLM\nWhich approach produces the best moral outcomes?",
+        fontsize=14,
+        fontweight="bold",
+    )
 
     # Color by category
     category_colors = {
         "rule-based": "#2ecc71",  # Green
-        "neural": "#3498db",      # Blue
-        "llm": "#9b59b6",         # Purple
-        "mixed": "#e74c3c",       # Red
+        "neural": "#3498db",  # Blue
+        "llm": "#9b59b6",  # Purple
+        "mixed": "#e74c3c",  # Red
     }
     colors = [category_colors.get(exp.get("category", "mixed"), "#95a5a6") for exp in experiments]
 
@@ -252,7 +267,7 @@ def main():
     ax = axes[0, 1]
     for i, result in enumerate(results):
         ax.plot(result["fairness"], color=colors[i], alpha=0.7)
-    ax.axhline(y=0.8, color='r', linestyle='--', label='High Fairness')
+    ax.axhline(y=0.8, color="r", linestyle="--", label="High Fairness")
     ax.set_xlabel("Episode (x100)")
     ax.set_ylabel("Fairness Score")
     ax.set_title("Fairness Evolution")
@@ -278,7 +293,7 @@ def main():
     # Plot 5: Final fairness bar chart
     ax = axes[1, 1]
     ax.bar(x, [r["final_fairness"] for r in results], color=colors)
-    ax.axhline(y=0.8, color='r', linestyle='--', label='Target')
+    ax.axhline(y=0.8, color="r", linestyle="--", label="Target")
     ax.set_xticks(x)
     ax.set_xticklabels([f"Exp {i+1}" for i in range(len(results))], rotation=45)
     ax.set_ylabel("Final Fairness")
@@ -297,7 +312,7 @@ def main():
     # Save
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"comprehensive_test_{timestamp}.png"
-    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    plt.savefig(filename, dpi=150, bbox_inches="tight")
     print(f"\n✓ Results saved to: {filename}")
 
     # Summary
@@ -320,7 +335,9 @@ def main():
         avg_fair = np.mean([r["final_fairness"] for r in cat_results])
         avg_coop = np.mean([r["final_cooperation"] for r in cat_results])
         avg_reward = np.mean([r["final_reward"] for r in cat_results])
-        print(f"{cat.upper():12} | Fairness: {avg_fair:.3f} | Cooperation: {avg_coop:.3f} | Reward: {avg_reward:.1f}")
+        print(
+            f"{cat.upper():12} | Fairness: {avg_fair:.3f} | Cooperation: {avg_coop:.3f} | Reward: {avg_reward:.1f}"
+        )
 
     best_coop = max(results, key=lambda x: x["final_cooperation"])
     best_fair = max(results, key=lambda x: x["final_fairness"])
@@ -337,8 +354,12 @@ def main():
     print("-" * 60)
 
     llm_results = [r for i, r in enumerate(results) if experiments[i].get("category") == "llm"]
-    neural_results = [r for i, r in enumerate(results) if experiments[i].get("category") == "neural"]
-    rule_results = [r for i, r in enumerate(results) if experiments[i].get("category") == "rule-based"]
+    neural_results = [
+        r for i, r in enumerate(results) if experiments[i].get("category") == "neural"
+    ]
+    rule_results = [
+        r for i, r in enumerate(results) if experiments[i].get("category") == "rule-based"
+    ]
 
     if llm_results and neural_results:
         llm_fair = np.mean([r["final_fairness"] for r in llm_results])
@@ -346,9 +367,13 @@ def main():
         rule_fair = np.mean([r["final_fairness"] for r in rule_results]) if rule_results else 0
 
         if llm_fair > neural_fair:
-            print(f"✓ LLM agents outperform Neural on fairness ({llm_fair:.3f} vs {neural_fair:.3f})")
+            print(
+                f"✓ LLM agents outperform Neural on fairness ({llm_fair:.3f} vs {neural_fair:.3f})"
+            )
         else:
-            print(f"✗ Neural agents match/beat LLM on fairness ({neural_fair:.3f} vs {llm_fair:.3f})")
+            print(
+                f"✗ Neural agents match/beat LLM on fairness ({neural_fair:.3f} vs {llm_fair:.3f})"
+            )
 
         if rule_fair > neural_fair:
             print(f"✓ Rule-based beats Neural on fairness ({rule_fair:.3f} vs {neural_fair:.3f})")
