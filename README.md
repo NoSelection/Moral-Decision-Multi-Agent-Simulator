@@ -7,7 +7,6 @@
 
 A research-grade multi-agent reinforcement learning environment for studying moral decision-making, featuring **Claude and Gemini LLM agents** for genuine moral reasoning. This project enables empirical comparison between rule-based heuristics, learned policies, and large language model reasoning in ethical scenarios.
 
-**New: Gemini support with FREE tier!** Run experiments without API costs using Google's Gemini.
 
 ## Key Research Questions
 
@@ -162,6 +161,13 @@ python train_turbo.py
 pytest
 pytest --cov=src --cov-report=html  # With coverage
 ```
+
+## Reproducibility & Reliability
+
+- **Deterministic offline runs:** By default `experiments/llm_comparison` uses `MockLLMAgent`, so experiments can run without external APIs or network variability. Switch to real providers with `--real-llm` once you have keys.
+- **Seeded environments:** Every `MoralDilemmaEnv` supports `reset(seed=...)` for deterministic trajectories. Use this inside custom scripts or experiments to lock stochasticity.
+- **Bounded LLM calls:** Claude and Gemini agents now include bounded retries and timeouts with a deterministic fair-share fallback to prevent stalled runs when APIs are unavailable.
+- **Battle-tested suite:** Run `pytest` (or `pytest --cov=src`) before committing to verify agents, environment mechanics, and moral metrics.
 
 ## Project Structure
 

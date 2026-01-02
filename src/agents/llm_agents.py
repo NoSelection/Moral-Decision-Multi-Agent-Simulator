@@ -197,6 +197,8 @@ class LLMAgent(MoralAgent):
         moral_framework: str = "flexible",
         config: Optional[LLMAgentConfig] = None,
         api_key: Optional[str] = None,
+        request_timeout: float = 15.0,
+        max_attempts: int = 2,
     ):
         """Initialize an LLM-based moral agent.
 
@@ -205,6 +207,8 @@ class LLMAgent(MoralAgent):
             moral_framework: Which moral framework to use (utilitarian, deontological, etc.)
             config: Configuration for the LLM
             api_key: Anthropic API key (uses ANTHROPIC_API_KEY env var if not provided)
+            request_timeout: Per-request timeout (seconds)
+            max_attempts: Number of attempts before falling back to safe default
         """
         super().__init__(agent_id, f"llm_{moral_framework}")
 
@@ -215,6 +219,8 @@ class LLMAgent(MoralAgent):
 
         self.moral_framework = moral_framework
         self.config = config or LLMAgentConfig()
+        self.request_timeout = request_timeout
+        self.max_attempts = max_attempts
 
         # Initialize API client
         api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
@@ -322,17 +328,9 @@ DECISION: [A single number between 0.0 and 1.0]
         # Format observation into natural language
         prompt = self._format_observation(observation)
 
-        # Get Claude's reasoning
-        response = self.client.messages.create(
-            model=self.config.model,
-            max_tokens=self.config.max_tokens,
-            temperature=self.config.temperature,
-            system=self.system_prompt,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        # Get Claude's reasoning with guarded retries to avoid hangs
+        response_text = self._generate_response(prompt)
 
-        # Parse response
-        response_text = response.content[0].text
         reasoning, action = self._parse_response(response_text)
 
         # Store reasoning trace
@@ -374,6 +372,30 @@ DECISION: [A single number between 0.0 and 1.0]
             }
             for trace in self.reasoning_history
         ]
+
+    def _generate_response(self, prompt: str) -> str:
+        """Call the LLM with retries and a deterministic fallback on failure."""
+        last_error: Optional[Exception] = None
+
+        for attempt in range(self.max_attempts):
+            try:
+                response = self.client.messages.create(
+                    model=self.config.model,
+                    max_tokens=self.config.max_tokens,
+                    temperature=self.config.temperature,
+                    system=self.system_prompt,
+                    messages=[{"role": "user", "content": prompt}],
+                    timeout=self.request_timeout,
+                )
+                return response.content[0].text
+            except Exception as exc:  # pragma: no cover - defensive against network issues
+                last_error = exc
+                continue
+
+        # Deterministic safe fallback if all attempts fail
+        return (
+            f"REASONING: API unavailable ({last_error}). Defaulting to fair share.\nDECISION: 0.25"
+        )
 
 
 class ClaudeUtilitarianAgent(LLMAgent):
@@ -434,6 +456,8 @@ class GeminiAgent(MoralAgent):
         moral_framework: str = "flexible",
         config: Optional[LLMAgentConfig] = None,
         api_key: Optional[str] = None,
+        request_timeout: float = 15.0,
+        max_attempts: int = 3,
     ):
         """Initialize a Gemini-based moral agent.
 
@@ -442,6 +466,8 @@ class GeminiAgent(MoralAgent):
             moral_framework: Which moral framework to use
             config: Configuration for the LLM
             api_key: Google API key (uses GOOGLE_API_KEY or GEMINI_API_KEY env var if not provided)
+            request_timeout: Per-request timeout (seconds)
+            max_attempts: Retry attempts before falling back
         """
         super().__init__(agent_id, f"gemini_{moral_framework}")
 
@@ -453,6 +479,8 @@ class GeminiAgent(MoralAgent):
 
         self.moral_framework = moral_framework
         self.config = config or LLMAgentConfig.gemini_default()
+        self.request_timeout = request_timeout
+        self.max_attempts = max_attempts
 
         # Initialize API
         api_key = api_key or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
@@ -549,29 +577,10 @@ DECISION: [A single number between 0.0 and 1.0]
 
     def act(self, observation: np.ndarray) -> np.ndarray:
         """Make a decision using Gemini's moral reasoning."""
-        import time
-
         prompt = self._format_observation(observation)
+        response_text = self._generate_response(prompt)
 
-        # Get Gemini's response with retry for rate limits
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                response = self.model.generate_content(prompt)
-                response_text = response.text
-                break
-            except Exception as e:
-                if "429" in str(e) or "quota" in str(e).lower():
-                    wait_time = 15 * (attempt + 1)  # 15, 30, 45 seconds
-                    print(f"Rate limited, waiting {wait_time}s...")
-                    time.sleep(wait_time)
-                    if attempt == max_retries - 1:
-                        response_text = "Rate limit exceeded. Defaulting to fair share."
-                else:
-                    response_text = f"API error: {e}. Defaulting to fair share."
-                    break
-
-        # Parse response
+        # Parse response (falls back to fair share on parsing failure)
         reasoning, action = self._parse_response(response_text)
 
         # Store reasoning trace
@@ -607,6 +616,24 @@ DECISION: [A single number between 0.0 and 1.0]
             }
             for trace in self.reasoning_history
         ]
+
+    def _generate_response(self, prompt: str) -> str:
+        """Call Gemini with bounded retries and deterministic fallback."""
+        last_error: Optional[Exception] = None
+
+        for attempt in range(self.max_attempts):
+            try:
+                response = self.model.generate_content(
+                    prompt, request_options={"timeout": self.request_timeout}
+                )
+                return response.text
+            except Exception as exc:  # pragma: no cover - external dependency guard
+                last_error = exc
+                continue
+
+        return (
+            f"REASONING: API unavailable ({last_error}). Defaulting to fair share.\nDECISION: 0.25"
+        )
 
 
 class GeminiUtilitarianAgent(GeminiAgent):

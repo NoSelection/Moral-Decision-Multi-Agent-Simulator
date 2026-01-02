@@ -84,7 +84,8 @@ class MoralDilemmaEnv(ParallelEnv):
 
         # Process actions
         claims = {}
-        total_claimed = 0
+        allocations = {}
+        total_claimed = 0.0
 
         for agent, action in actions.items():
             claim_fraction = float(action[0])
@@ -92,26 +93,31 @@ class MoralDilemmaEnv(ParallelEnv):
             claims[agent] = claim_amount
             total_claimed += claim_amount
 
-        # Distribute resources
-        if total_claimed > self.remaining_resources:
+        # Distribute resources (track actual allocations for reward calculation)
+        remaining = self.remaining_resources
+        if total_claimed > self.remaining_resources and total_claimed > 0:
             # Scale down proportionally if over-claimed
             scale_factor = self.remaining_resources / total_claimed
             for agent in claims:
                 actual_allocation = claims[agent] * scale_factor
+                allocations[agent] = actual_allocation
                 self.agent_resources[agent] += actual_allocation
-                self.remaining_resources -= actual_allocation
+                remaining -= actual_allocation
         else:
             # Give what was claimed
             for agent, amount in claims.items():
+                allocations[agent] = amount
                 self.agent_resources[agent] += amount
-                self.remaining_resources -= amount
+                remaining -= amount
+
+        self.remaining_resources = max(0.0, remaining)
 
         # Update last actions for peer influence modeling
         for agent, action in actions.items():
             self.last_actions[agent] = float(action[0])
 
         # Calculate rewards based on reward structure
-        rewards = self._calculate_rewards(claims, actions)
+        rewards = self._calculate_rewards(claims, actions, allocations)
 
         # Update metrics
         self._update_moral_metrics(claims)
@@ -120,9 +126,13 @@ class MoralDilemmaEnv(ParallelEnv):
         self.timestep += 1
         observations = {agent: self._get_observation(agent) for agent in self.agents}
 
-        # Check termination
-        truncations = dict.fromkeys(self.agents, self.timestep >= self.episode_length)
-        terminations = dict.fromkeys(self.agents, False)
+        # Check termination conditions
+        time_truncated = self.timestep >= self.episode_length
+        resources_depleted = self.remaining_resources <= 1e-6
+
+        terminations = dict.fromkeys(self.agents, resources_depleted)
+        # Only mark truncation for time-limit episodes that did not naturally terminate
+        truncations = dict.fromkeys(self.agents, (not resources_depleted) and time_truncated)
 
         # Additional info
         infos = {
@@ -130,12 +140,13 @@ class MoralDilemmaEnv(ParallelEnv):
                 "resources": self.agent_resources[agent],
                 "fairness_score": self._calculate_fairness(),
                 "cooperation_score": self.cooperation_score,
+                "allocation": allocations.get(agent, 0.0),
             }
             for agent in self.agents
         }
 
         # Remove terminated agents
-        if any(truncations.values()):
+        if any(truncations.values()) or any(terminations.values()):
             self.agents = []
 
         return observations, rewards, terminations, truncations, infos
@@ -160,24 +171,26 @@ class MoralDilemmaEnv(ParallelEnv):
 
         return obs
 
-    def _calculate_rewards(self, claims: Dict, actions: Dict) -> Dict[str, float]:
+    def _calculate_rewards(
+        self, claims: Dict, actions: Dict, allocations: Dict
+    ) -> Dict[str, float]:
         rewards = {}
 
         for agent in self.agents:
             if self.reward_structure == "selfish":
-                # Pure self-interest
-                rewards[agent] = self.agent_resources[agent]
+                # Pure self-interest (only the resources actually gained this step)
+                rewards[agent] = allocations.get(agent, 0.0)
 
             elif self.reward_structure == "utilitarian":
                 # Greatest good for greatest number
-                total_utility = sum(self.agent_resources.values())
+                total_utility = sum(allocations.values())
                 fairness_bonus = 10.0 * self._calculate_fairness()
-                rewards[agent] = total_utility / self._num_agents + fairness_bonus
+                rewards[agent] = (total_utility / max(1, self._num_agents)) + fairness_bonus
 
             elif self.reward_structure == "mixed":
-                # Balance self-interest and group welfare
-                selfish_component = self.agent_resources[agent]
-                group_component = sum(self.agent_resources.values()) / self._num_agents
+                # Balance self-interest and group welfare based on this step's allocations
+                selfish_component = allocations.get(agent, 0.0)
+                group_component = sum(allocations.values()) / max(1, self._num_agents)
                 fairness_component = 5.0 * self._calculate_fairness()
 
                 # Peer influence penalty/reward
