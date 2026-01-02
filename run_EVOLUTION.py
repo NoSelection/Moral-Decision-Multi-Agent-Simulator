@@ -14,10 +14,11 @@ This uses genetic algorithms:
 Hypothesis: Evolution will discover cooperation faster than gradient descent!
 """
 
+import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import time
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -355,7 +356,7 @@ def evolve(population_size=100, n_generations=200, n_episodes_per_eval=30):
 
     plt.tight_layout()
     plt.savefig("EVOLUTION_results.png", dpi=150)
-    print(f"\nSaved: EVOLUTION_results.png")
+    print("\nSaved: EVOLUTION_results.png")
 
     return population, best_fitness_history, avg_cooperation_history
 

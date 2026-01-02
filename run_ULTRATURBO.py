@@ -10,9 +10,10 @@ MAXIMUM OPTIMIZATION (Windows-compatible):
 6. Batched neural network updates
 """
 
+import time
+
 import torch
 import torch.nn as nn
-import time
 from tqdm import tqdm
 
 # ============================================
@@ -302,7 +303,7 @@ COMPARISON:
 
     plt.tight_layout()
     plt.savefig("ULTRATURBO_results.png", dpi=150)
-    print(f"\nSaved: ULTRATURBO_results.png")
+    print("\nSaved: ULTRATURBO_results.png")
 
     return reward_history, action_history
 

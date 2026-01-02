@@ -11,11 +11,12 @@ The question: Can neural networks LEARN to use the collective signal to coordina
 This is the REAL experiment.
 """
 
+import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-import time
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -507,7 +508,7 @@ def run_connected_experiment(n_agents=20, n_steps=50000, substrate_dim=32):
     )
     plt.tight_layout()
     plt.savefig("CONNECTED_v3_results.png", dpi=150)
-    print(f"\nSaved: CONNECTED_v3_results.png")
+    print("\nSaved: CONNECTED_v3_results.png")
 
     return {
         "cooperation": cooperation_history,

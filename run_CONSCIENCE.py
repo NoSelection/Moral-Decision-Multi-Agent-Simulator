@@ -17,12 +17,13 @@ The "Easter Island" Problem:
 This experiment: Natural selection breeds moral agents.
 """
 
+import copy
+import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-import time
-import copy
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

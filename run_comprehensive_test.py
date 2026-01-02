@@ -9,19 +9,20 @@ Compares THREE approaches to moral decision-making:
 This is AI safety research - which approach produces the best moral outcomes?
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime
 import time
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from tqdm import tqdm
 
-from src.environments.moral_dilemma_env import MoralDilemmaEnv
-from src.agents.moral_agents import (
-    create_agent,
-    AdaptiveNeuralAgent,
-)
 from src.agents.llm_agents import MockLLMAgent
+from src.agents.moral_agents import (
+    AdaptiveNeuralAgent,
+    create_agent,
+)
+from src.environments.moral_dilemma_env import MoralDilemmaEnv
 from src.metrics.moral_metrics import GreatestGoodBenchmark
 
 
