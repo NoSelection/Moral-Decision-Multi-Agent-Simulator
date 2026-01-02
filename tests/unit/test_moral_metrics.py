@@ -270,7 +270,9 @@ class TestPeerPressureAnalyzer:
             assert summary["total_events"] >= 1
             assert "most_influenced_agents" in summary
 
-    def test_peer_influence_constant_sequences_no_warning(self, ggb, sample_resources, sample_rewards):
+    def test_peer_influence_constant_sequences_no_warning(
+        self, ggb, sample_resources, sample_rewards
+    ):
         """Peer influence should handle constant sequences without warnings."""
         constant_actions = {"agent_0": 0.5, "agent_1": 0.5, "agent_2": 0.5, "agent_3": 0.5}
         for _ in range(12):

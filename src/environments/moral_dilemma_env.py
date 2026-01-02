@@ -171,7 +171,9 @@ class MoralDilemmaEnv(ParallelEnv):
 
         return obs
 
-    def _calculate_rewards(self, claims: Dict, actions: Dict, allocations: Dict) -> Dict[str, float]:
+    def _calculate_rewards(
+        self, claims: Dict, actions: Dict, allocations: Dict
+    ) -> Dict[str, float]:
         rewards = {}
 
         for agent in self.agents:

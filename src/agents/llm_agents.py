@@ -373,7 +373,6 @@ DECISION: [A single number between 0.0 and 1.0]
             for trace in self.reasoning_history
         ]
 
-
     def _generate_response(self, prompt: str) -> str:
         """Call the LLM with retries and a deterministic fallback on failure."""
         last_error: Optional[Exception] = None
@@ -394,7 +393,9 @@ DECISION: [A single number between 0.0 and 1.0]
                 continue
 
         # Deterministic safe fallback if all attempts fail
-        return f"REASONING: API unavailable ({last_error}). Defaulting to fair share.\nDECISION: 0.25"
+        return (
+            f"REASONING: API unavailable ({last_error}). Defaulting to fair share.\nDECISION: 0.25"
+        )
 
 
 class ClaudeUtilitarianAgent(LLMAgent):
@@ -616,20 +617,23 @@ DECISION: [A single number between 0.0 and 1.0]
             for trace in self.reasoning_history
         ]
 
-
     def _generate_response(self, prompt: str) -> str:
         """Call Gemini with bounded retries and deterministic fallback."""
         last_error: Optional[Exception] = None
 
         for attempt in range(self.max_attempts):
             try:
-                response = self.model.generate_content(prompt, request_options={"timeout": self.request_timeout})
+                response = self.model.generate_content(
+                    prompt, request_options={"timeout": self.request_timeout}
+                )
                 return response.text
             except Exception as exc:  # pragma: no cover - external dependency guard
                 last_error = exc
                 continue
 
-        return f"REASONING: API unavailable ({last_error}). Defaulting to fair share.\nDECISION: 0.25"
+        return (
+            f"REASONING: API unavailable ({last_error}). Defaulting to fair share.\nDECISION: 0.25"
+        )
 
 
 class GeminiUtilitarianAgent(GeminiAgent):
