@@ -1,6 +1,7 @@
 """Unit tests for the moral dilemma environment."""
 
 import numpy as np
+import pytest
 
 from src.environments.moral_dilemma_env import MoralDilemmaEnv
 
@@ -118,6 +119,7 @@ class TestEnvironmentStep:
         for agent_id in basic_env.agents:
             assert "resources" in infos[agent_id]
             assert "fairness_score" in infos[agent_id]
+            assert "allocation" in infos[agent_id]
 
 
 class TestRewardStructures:
@@ -190,6 +192,24 @@ class TestEpisodeTermination:
                 break
 
         assert terminated
+
+    def test_rewards_reflect_step_allocation(self):
+        """Selfish reward should match resources allocated this step (not cumulative)."""
+        env = MoralDilemmaEnv(
+            num_agents=2,
+            total_resources=100,
+            episode_length=10,
+            reward_structure="selfish",
+        )
+        env.reset()
+        actions = {"agent_0": np.array([0.5]), "agent_1": np.array([0.5])}
+
+        _, rewards, _, _, infos = env.step(actions)
+
+        # Each agent should receive ~50 resources, matching per-step reward
+        assert rewards["agent_0"] == pytest.approx(50.0, rel=1e-3)
+        assert rewards["agent_1"] == pytest.approx(50.0, rel=1e-3)
+        assert infos["agent_0"]["allocation"] == pytest.approx(50.0, rel=1e-3)
 
 
 class TestPeerInfluence:
